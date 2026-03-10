@@ -11,23 +11,16 @@
     End Sub
 
     ' ══════════════════════════════════════════
-    '  RESIZE — Controls adjust karo
+    '  RESIZE
     ' ══════════════════════════════════════════
     Private Sub frmStudentDashboard_Resize(sender As Object, e As EventArgs) Handles MyBase.Resize
         Dim w = Me.ClientSize.Width
         Dim h = Me.ClientSize.Height
 
-        ' Header full width
         pnlTop.Width = w
-
-        ' Welcome label right side pe
         lblWelcome.Location = New Point(w - 300, 18)
         btnLogout.Location = New Point(w - 115, 14)
-
-        ' Left sidebar height
         pnlLeft.Height = h - 60
-
-        ' Stats panel width
         pnlStats.Width = w - 195
         Dim cardW = (pnlStats.Width - 50) \ 4
         pnlCard1.Width = cardW
@@ -37,8 +30,6 @@
         pnlCard3.Location = New Point(15 + (cardW + 10) * 2, 10)
         pnlCard4.Width = cardW
         pnlCard4.Location = New Point(15 + (cardW + 10) * 3, 10)
-
-        ' Content panel
         pnlContent.Width = w - 195
         pnlContent.Height = h - 230
         dgvMain.Width = pnlContent.Width - 10
@@ -46,50 +37,73 @@
     End Sub
 
     ' ══════════════════════════════════════════
-    '  STATS - 4 Cards
+    '  STATS - 4 Cards  ✅ All DBNull fixed
     ' ══════════════════════════════════════════
     Private Sub LoadStats()
         Try
-            ' Card 1 - Attendance %
+            ' ── Card 1: Attendance % ──────────────────────────────
+            ' SUM() returns DBNull when table is empty → use COALESCE
             Dim dtAtt = DatabaseHelper.ExecuteQuery(
                 "SELECT COUNT(*) AS total, " &
-                "SUM(CASE WHEN status='Present' THEN 1 ELSE 0 END) AS present " &
+                "COALESCE(SUM(CASE WHEN status='Present' THEN 1 ELSE 0 END), 0) AS present " &
                 "FROM attendance WHERE student_id=" & StudentId)
+
             If dtAtt.Rows.Count > 0 Then
-                Dim total = Convert.ToInt32(dtAtt.Rows(0)("total"))
-                Dim present = Convert.ToInt32(dtAtt.Rows(0)("present"))
-                Dim pct = If(total > 0, Math.Round((present / total) * 100, 0), 0)
+                Dim total   = SafeInt(dtAtt.Rows(0), "total")
+                Dim present = SafeInt(dtAtt.Rows(0), "present")
+                Dim pct     = If(total > 0, Math.Round((present / total) * 100, 0), 0)
                 lblAttPercent.Text = pct & "%"
                 lblAttPercent.ForeColor = If(pct >= 75,
-                    Color.FromArgb(39, 174, 96), Color.FromArgb(192, 57, 43))
+                    Color.FromArgb(39, 174, 96),
+                    Color.FromArgb(192, 57, 43))
+            Else
+                lblAttPercent.Text = "N/A"
             End If
 
-            ' Card 2 - Total Subjects
+            ' ── Card 2: Total Subjects ────────────────────────────
+            ' If no results yet, COUNT returns 0 — still safe with SafeInt
             Dim dtSub = DatabaseHelper.ExecuteQuery(
                 "SELECT COUNT(DISTINCT subject_id) AS total FROM results WHERE student_id=" & StudentId)
-            lblTotalSubjects.Text = dtSub.Rows(0)("total").ToString()
 
-            ' Card 3 - Fees Pending  ✅ Fix: backticks removed, simple column names
+            If dtSub.Rows.Count > 0 Then
+                lblTotalSubjects.Text = SafeInt(dtSub.Rows(0), "total").ToString()
+            Else
+                lblTotalSubjects.Text = "0"
+            End If
+
+            ' ── Card 3: Fees Pending ──────────────────────────────
+            ' SUM() on empty rows = DBNull → COALESCE fixes it
             Dim dtFee = DatabaseHelper.ExecuteQuery(
                 "SELECT COALESCE(SUM(amount - paid_amount), 0) AS pending " &
                 "FROM fees WHERE student_id=" & StudentId)
-            Dim pending = Convert.ToDecimal(dtFee.Rows(0)("pending"))
-            ' ✅ Fix: Short format so it fits in card
-            If pending >= 100000 Then
-                lblFeesPending.Text = "Rs." & Math.Round(pending / 100000, 1) & "L"
-            ElseIf pending >= 1000 Then
-                lblFeesPending.Text = "Rs." & Math.Round(pending / 1000, 1) & "K"
+
+            If dtFee.Rows.Count > 0 Then
+                Dim pending = SafeDecimal(dtFee.Rows(0), "pending")
+                If pending >= 100000 Then
+                    lblFeesPending.Text = "Rs." & Math.Round(pending / 100000, 1) & "L"
+                ElseIf pending >= 1000 Then
+                    lblFeesPending.Text = "Rs." & Math.Round(pending / 1000, 1) & "K"
+                Else
+                    lblFeesPending.Text = "Rs." & pending.ToString("0")
+                End If
             Else
-                lblFeesPending.Text = "Rs." & pending.ToString("0")
+                lblFeesPending.Text = "Rs.0"
             End If
 
-            ' Card 4 - Semester
+            ' ── Card 4: Semester ──────────────────────────────────
+            ' student_id might exist but semester could be NULL
             Dim dtSem = DatabaseHelper.ExecuteQuery(
                 "SELECT semester FROM students WHERE student_id=" & StudentId)
-            lblCurrentSem.Text = "Sem " & dtSem.Rows(0)("semester").ToString()
+
+            If dtSem.Rows.Count > 0 Then
+                lblCurrentSem.Text = "Sem " & SafeStr(dtSem.Rows(0), "semester")
+            Else
+                lblCurrentSem.Text = "—"
+            End If
 
         Catch ex As Exception
-            MessageBox.Show("Stats error: " & ex.Message)
+            MessageBox.Show("Stats error: " & ex.Message, "Error",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
@@ -126,7 +140,6 @@
         Next
     End Sub
 
-    ' Hover effects
     Private Sub SideBtn_MouseEnter(sender As Object, e As EventArgs) _
         Handles btnMyProfile.MouseEnter, btnMyAttendance.MouseEnter,
                 btnMyResults.MouseEnter, btnMyFees.MouseEnter
@@ -158,16 +171,16 @@
                         "s.admission_year AS `Admission Year` " &
                         "FROM students s LEFT JOIN courses c ON s.course_id = c.course_id " &
                         "WHERE s.student_id=" & StudentId
-            Dim dt = DatabaseHelper.ExecuteQuery(query)
-            dgvMain.DataSource = dt
+            dgvMain.DataSource = DatabaseHelper.ExecuteQuery(query)
             StyleGrid()
         Catch ex As Exception
-            MessageBox.Show("Profile error: " & ex.Message)
+            MessageBox.Show("Profile error: " & ex.Message, "Error",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
     ' ══════════════════════════════════════════
-    '  ATTENDANCE  ✅ Fix: backticks use kiye
+    '  ATTENDANCE
     ' ══════════════════════════════════════════
     Private Sub ShowAttendance()
         pnlContentTitle.Text = "  📅  My Attendance"
@@ -182,7 +195,6 @@
             dgvMain.DataSource = dt
             StyleGrid()
 
-            ' Color rows
             For Each row As DataGridViewRow In dgvMain.Rows
                 If row.Cells("Status").Value IsNot Nothing Then
                     Select Case row.Cells("Status").Value.ToString()
@@ -199,12 +211,13 @@
                 End If
             Next
         Catch ex As Exception
-            MessageBox.Show("Attendance error: " & ex.Message)
+            MessageBox.Show("Attendance error: " & ex.Message, "Error",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
     ' ══════════════════════════════════════════
-    '  RESULTS  ✅ Fix: [Academic Year] → backtick
+    '  RESULTS
     ' ══════════════════════════════════════════
     Private Sub ShowResults()
         pnlContentTitle.Text = "  📝  My Results"
@@ -221,7 +234,6 @@
             dgvMain.DataSource = dt
             StyleGrid()
 
-            ' Grade color
             For Each row As DataGridViewRow In dgvMain.Rows
                 If row.Cells("Grade").Value IsNot Nothing Then
                     Select Case row.Cells("Grade").Value.ToString().ToUpper()
@@ -241,12 +253,13 @@
                 End If
             Next
         Catch ex As Exception
-            MessageBox.Show("Results error: " & ex.Message)
+            MessageBox.Show("Results error: " & ex.Message, "Error",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
     ' ══════════════════════════════════════════
-    '  FEES  ✅ Fix: [Fee Type] etc. → backticks
+    '  FEES
     ' ══════════════════════════════════════════
     Private Sub ShowFees()
         pnlContentTitle.Text = "  💰  My Fees"
@@ -261,7 +274,6 @@
             dgvMain.DataSource = dt
             StyleGrid()
 
-            ' Color rows
             For Each row As DataGridViewRow In dgvMain.Rows
                 If row.Cells("Status").Value IsNot Nothing Then
                     Select Case row.Cells("Status").Value.ToString()
@@ -278,7 +290,8 @@
                 End If
             Next
         Catch ex As Exception
-            MessageBox.Show("Fees error: " & ex.Message)
+            MessageBox.Show("Fees error: " & ex.Message, "Error",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
@@ -303,9 +316,8 @@
     '  LOGOUT
     ' ══════════════════════════════════════════
     Private Sub btnLogout_Click(sender As Object, e As EventArgs) Handles btnLogout.Click
-        Dim confirm = MessageBox.Show("Are you sure you want to logout?", "Confirm Logout",
-                                     MessageBoxButtons.YesNo, MessageBoxIcon.Question)
-        If confirm = DialogResult.Yes Then
+        If MessageBox.Show("Are you sure you want to logout?", "Confirm Logout",
+                           MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
             Dim loginForm As New Form1()
             loginForm.Show()
             Me.Close()
@@ -319,5 +331,34 @@
     Private Sub btnLogout_MouseLeave(sender As Object, e As EventArgs) Handles btnLogout.MouseLeave
         btnLogout.BackColor = Color.FromArgb(192, 57, 43)
     End Sub
+
+    ' ══════════════════════════════════════════
+    '  SAFE VALUE HELPERS  ✅ Prevent all DBNull crashes
+    ' ══════════════════════════════════════════
+    Private Function SafeInt(row As System.Data.DataRow, col As String) As Integer
+        If row.Table.Columns.Contains(col) AndAlso
+           row(col) IsNot Nothing AndAlso
+           row(col) IsNot DBNull.Value Then
+            Return Convert.ToInt32(row(col))
+        End If
+        Return 0
+    End Function
+
+    Private Function SafeDecimal(row As System.Data.DataRow, col As String) As Decimal
+        If row.Table.Columns.Contains(col) AndAlso
+           row(col) IsNot Nothing AndAlso
+           row(col) IsNot DBNull.Value Then
+            Return Convert.ToDecimal(row(col))
+        End If
+        Return 0D
+    End Function
+
+    Private Function SafeStr(row As System.Data.DataRow, col As String) As String
+        If row.Table.Columns.Contains(col) AndAlso
+           row(col) IsNot DBNull.Value Then
+            Return row(col).ToString()
+        End If
+        Return "—"
+    End Function
 
 End Class
