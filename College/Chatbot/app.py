@@ -5,7 +5,7 @@ import json
 
 app = Flask(__name__)
 
-GROQ_API_KEY = "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"
+GROQ_API_KEY = ""
 
 DB_CONFIG = {
     "host": "localhost",
