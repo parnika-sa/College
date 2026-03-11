@@ -15,6 +15,7 @@ Partial Class frmStudentDashboard
         Me.pnlTop = New System.Windows.Forms.Panel()
         Me.lblTitle = New System.Windows.Forms.Label()
         Me.lblWelcome = New System.Windows.Forms.Label()
+        Me.btnChatbot = New System.Windows.Forms.Button()      ' ← NEW
         Me.btnLogout = New System.Windows.Forms.Button()
 
         Me.pnlLeft = New System.Windows.Forms.Panel()
@@ -67,9 +68,12 @@ Partial Class frmStudentDashboard
         Me.pnlTop.BackColor = Color.FromArgb(31, 73, 125)
         Me.pnlTop.Dock = DockStyle.Top
         Me.pnlTop.Height = 60
-        Me.pnlTop.Controls.AddRange({Me.lblTitle, Me.lblWelcome, Me.btnLogout})
+        Me.pnlTop.Controls.Add(Me.lblTitle)
+        Me.pnlTop.Controls.Add(Me.lblWelcome)
+        Me.pnlTop.Controls.Add(Me.btnChatbot)      ' ← NEW
+        Me.pnlTop.Controls.Add(Me.btnLogout)
 
-        Me.lblTitle.Text = "🎓  COLLEGE ERP SYSTEM"
+        Me.lblTitle.Text = "COLLEGE ERP SYSTEM"
         Me.lblTitle.ForeColor = Color.White
         Me.lblTitle.Font = New Font("Segoe UI", 14, FontStyle.Bold)
         Me.lblTitle.AutoSize = True
@@ -79,10 +83,23 @@ Partial Class frmStudentDashboard
         Me.lblWelcome.ForeColor = Color.FromArgb(180, 210, 240)
         Me.lblWelcome.Font = New Font("Segoe UI", 9)
         Me.lblWelcome.AutoSize = True
-        Me.lblWelcome.Location = New Point(680, 20)
+        Me.lblWelcome.Location = New Point(580, 20)
         Me.lblWelcome.Name = "lblWelcome"
 
-        Me.btnLogout.Text = "⏻  Logout"
+        ' ── AI Assistant Button ──
+        Me.btnChatbot.Text = "AI Assistant"
+        Me.btnChatbot.Font = New Font("Segoe UI", 9, FontStyle.Bold)
+        Me.btnChatbot.BackColor = Color.FromArgb(20, 100, 60)
+        Me.btnChatbot.ForeColor = Color.White
+        Me.btnChatbot.FlatStyle = FlatStyle.Flat
+        Me.btnChatbot.FlatAppearance.BorderSize = 0
+        Me.btnChatbot.FlatAppearance.MouseOverBackColor = Color.FromArgb(10, 80, 45)
+        Me.btnChatbot.Location = New Point(755, 13)
+        Me.btnChatbot.Size = New Size(120, 34)
+        Me.btnChatbot.Cursor = Cursors.Hand
+        Me.btnChatbot.Name = "btnChatbot"
+
+        Me.btnLogout.Text = "Logout"
         Me.btnLogout.Location = New Point(885, 13)
         Me.btnLogout.Size = New Size(95, 34)
         Me.btnLogout.BackColor = Color.FromArgb(192, 57, 43)
@@ -99,11 +116,11 @@ Partial Class frmStudentDashboard
         Me.pnlLeft.BackColor = Color.FromArgb(26, 32, 44)
         Me.pnlLeft.Location = New Point(0, 60)
         Me.pnlLeft.Size = New Size(180, 560)
-        Me.pnlLeft.Controls.AddRange({
-            Me.lblNavTitle,
-            Me.btnMyProfile, Me.btnMyAttendance,
-            Me.btnMyResults, Me.btnMyFees
-        })
+        Me.pnlLeft.Controls.Add(Me.lblNavTitle)
+        Me.pnlLeft.Controls.Add(Me.btnMyProfile)
+        Me.pnlLeft.Controls.Add(Me.btnMyAttendance)
+        Me.pnlLeft.Controls.Add(Me.btnMyResults)
+        Me.pnlLeft.Controls.Add(Me.btnMyFees)
 
         Me.lblNavTitle.Text = "NAVIGATION"
         Me.lblNavTitle.Font = New Font("Segoe UI", 7, FontStyle.Bold)
@@ -111,14 +128,13 @@ Partial Class frmStudentDashboard
         Me.lblNavTitle.Location = New Point(18, 18)
         Me.lblNavTitle.AutoSize = True
 
-        ' Sidebar Buttons
         Dim sideButtons() As Button = {
             Me.btnMyProfile, Me.btnMyAttendance,
             Me.btnMyResults, Me.btnMyFees
         }
         Dim sideTxts() As String = {
-            "👤   My Profile", "📅   My Attendance",
-            "📝   My Results", "💰   My Fees"
+            "My Profile", "My Attendance",
+            "My Results", "My Fees"
         }
         Dim sideNms() As String = {
             "btnMyProfile", "btnMyAttendance",
@@ -147,14 +163,13 @@ Partial Class frmStudentDashboard
         Me.pnlStats.Location = New Point(185, 65)
         Me.pnlStats.Size = New Size(795, 135)
 
-        ' Card setup
         Dim cards() As Panel = {Me.pnlCard1, Me.pnlCard2, Me.pnlCard3, Me.pnlCard4}
         Dim cardIcons() As Label = {Me.lblCard1Icon, Me.lblCard2Icon, Me.lblCard3Icon, Me.lblCard4Icon}
         Dim cardTitles() As Label = {Me.lblCard1Title, Me.lblCard2Title, Me.lblCard3Title, Me.lblCard4Title}
         Dim cardValues() As Label = {Me.lblAttPercent, Me.lblTotalSubjects, Me.lblFeesPending, Me.lblCurrentSem}
         Dim cardSubs() As Label = {Me.lblCard1Sub, Me.lblCard2Sub, Me.lblCard3Sub, Me.lblCard4Sub}
 
-        Dim cIcons() As String = {"📊", "📚", "💰", "🎓"}
+        Dim cIcons() As String = {"A", "S", "F", "G"}
         Dim cTitles() As String = {"Attendance %", "Total Subjects", "Fees Pending", "Semester"}
         Dim cSubs() As String = {"This semester", "Enrolled", "Amount due", "Current"}
         Dim cVals() As String = {"lblAttPercent", "lblTotalSubjects", "lblFeesPending", "lblCurrentSem"}
@@ -177,10 +192,14 @@ Partial Class frmStudentDashboard
             cards(i).Size = New Size(183, 112)
             cards(i).BorderStyle = BorderStyle.None
             Me.pnlStats.Controls.Add(cards(i))
-            cards(i).Controls.AddRange({cardIcons(i), cardTitles(i), cardValues(i), cardSubs(i)})
+            cards(i).Controls.Add(cardIcons(i))
+            cards(i).Controls.Add(cardTitles(i))
+            cards(i).Controls.Add(cardValues(i))
+            cards(i).Controls.Add(cardSubs(i))
 
             cardIcons(i).Text = cIcons(i)
-            cardIcons(i).Font = New Font("Segoe UI", 16)
+            cardIcons(i).Font = New Font("Segoe UI", 16, FontStyle.Bold)
+            cardIcons(i).ForeColor = cFg(i)
             cardIcons(i).Location = New Point(145, 8)
             cardIcons(i).AutoSize = True
 
@@ -190,7 +209,6 @@ Partial Class frmStudentDashboard
             cardTitles(i).Location = New Point(10, 10)
             cardTitles(i).AutoSize = True
 
-            ' ✅ Fix: AutoSize OFF + fixed size taaki text card se bahar na jaye
             cardValues(i).Text = "..."
             cardValues(i).Name = cVals(i)
             cardValues(i).Font = New Font("Segoe UI", 20, FontStyle.Bold)
@@ -212,22 +230,21 @@ Partial Class frmStudentDashboard
         Me.pnlContent.BackColor = Color.White
         Me.pnlContent.Location = New Point(185, 208)
         Me.pnlContent.Size = New Size(795, 415)
-        Me.pnlContent.Controls.AddRange({Me.pnlContentTitle, Me.dgvMain})
+        Me.pnlContent.Controls.Add(Me.pnlContentTitle)
+        Me.pnlContent.Controls.Add(Me.dgvMain)
 
-        ' Content Title Bar
         Me.pnlContentTitle.BackColor = Color.FromArgb(245, 247, 252)
         Me.pnlContentTitle.Location = New Point(0, 0)
         Me.pnlContentTitle.Size = New Size(795, 40)
         Me.pnlContentTitle.Name = "pnlContentTitle"
 
-        Me.lblContentTitle.Text = "  📅  My Attendance"
+        Me.lblContentTitle.Text = "  My Attendance"
         Me.lblContentTitle.Font = New Font("Segoe UI", 11, FontStyle.Bold)
         Me.lblContentTitle.ForeColor = Color.FromArgb(31, 73, 125)
         Me.lblContentTitle.Location = New Point(5, 8)
         Me.lblContentTitle.AutoSize = True
         Me.pnlContentTitle.Controls.Add(Me.lblContentTitle)
 
-        ' DataGridView
         Me.dgvMain.Location = New Point(0, 40)
         Me.dgvMain.Size = New Size(795, 375)
         Me.dgvMain.AllowUserToAddRows = False
@@ -256,7 +273,10 @@ Partial Class frmStudentDashboard
         Me.BackColor = Color.FromArgb(245, 247, 252)
         Me.Font = New Font("Segoe UI", 9)
         Me.MinimumSize = New Size(900, 600)
-        Me.Controls.AddRange({Me.pnlTop, Me.pnlLeft, Me.pnlStats, Me.pnlContent})
+        Me.Controls.Add(Me.pnlTop)
+        Me.Controls.Add(Me.pnlLeft)
+        Me.Controls.Add(Me.pnlStats)
+        Me.Controls.Add(Me.pnlContent)
 
         Me.pnlTop.ResumeLayout(False)
         Me.pnlTop.PerformLayout()
@@ -265,12 +285,12 @@ Partial Class frmStudentDashboard
         Me.pnlContent.ResumeLayout(False)
         CType(Me.dgvMain, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
-
     End Sub
 
     Friend WithEvents pnlTop As Panel
     Friend WithEvents lblTitle As Label
     Friend WithEvents lblWelcome As Label
+    Friend WithEvents btnChatbot As Button          ' ← NEW
     Friend WithEvents btnLogout As Button
     Friend WithEvents pnlLeft As Panel
     Friend WithEvents lblNavTitle As Label

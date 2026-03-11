@@ -2,32 +2,27 @@
 
     Private sidebarExpanded As Boolean = True
 
-    ' ✅ Fix: Emoji arrays stored at class level for collapse/expand
-    Private ReadOnly collapseIcons() As String = {"👨‍🎓", "👨‍🏫", "📅", "📝", "💰"}
+    Private ReadOnly collapseIcons() As String = {"S", "T", "A", "R", "F"}
     Private ReadOnly expandTexts() As String = {
-        "👨‍🎓   Students", "👨‍🏫   Teachers",
-        "📅   Attendance", "📝   Results", "💰   Fees"
+        "Students", "Teachers",
+        "Attendance", "Results", "Fees"
     }
 
     Private Sub frmAdminDashboard_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         LoadDashboardStats()
-        ' Setup transparent backgrounds so painting shows
         pnlCard1.BackColor = Color.Transparent
         pnlCard2.BackColor = Color.Transparent
         pnlCard3.BackColor = Color.Transparent
         pnlCard4.BackColor = Color.Transparent
         pnlInfo.BackColor = Color.Transparent
-        ' Setup rounded panel layouts
         pnlCard1.Padding = New Padding(5)
         pnlCard2.Padding = New Padding(5)
         pnlCard3.Padding = New Padding(5)
         pnlCard4.Padding = New Padding(5)
-        ' Attach paint handlers dynamically
         AddHandler pnlCard1.Paint, AddressOf pnlCard1_Paint
         AddHandler pnlCard2.Paint, AddressOf pnlCard1_Paint
         AddHandler pnlCard3.Paint, AddressOf pnlCard1_Paint
         AddHandler pnlCard4.Paint, AddressOf pnlCard1_Paint
-
         If pnlInfo IsNot Nothing Then
             AddHandler pnlInfo.Paint, AddressOf pnlCard1_Paint
         End If
@@ -96,40 +91,52 @@
     '  HAMBURGER MENU TOGGLE
     ' ══════════════════════════════════════════
     Private Sub btnHamburger_Click(sender As Object, e As EventArgs) Handles btnHamburger.Click
-        ' ✅ Fix: Use fixed arrays instead of Substring (emojis are surrogate pairs)
         Dim buttons() As Button = {btnStudents, btnTeachers, btnAttendance, btnResults, btnFees}
 
         If sidebarExpanded Then
-            ' ── Collapse ──
             pnlSidebar.Width = 55
             lblMenuTitle.Visible = False
-
             For idx As Integer = 0 To buttons.Length - 1
-                buttons(idx).Text = collapseIcons(idx)           ' ✅ Direct emoji assign
-                buttons(idx).Font = New Font("Segoe UI Emoji", 14)
+                buttons(idx).Text = collapseIcons(idx)
+                buttons(idx).Font = New Font("Segoe UI", 14, FontStyle.Bold)
                 buttons(idx).TextAlign = ContentAlignment.MiddleCenter
                 buttons(idx).Padding = New Padding(0)
             Next
-
             pnlMain.Location = New Point(55, 65)
             pnlMain.Width = 945
         Else
-            ' ── Expand ──
             pnlSidebar.Width = 200
             lblMenuTitle.Visible = True
-
             For idx As Integer = 0 To buttons.Length - 1
-                buttons(idx).Text = expandTexts(idx)             ' ✅ Full text with emoji
+                buttons(idx).Text = expandTexts(idx)
                 buttons(idx).Font = New Font("Segoe UI", 10, FontStyle.Bold)
                 buttons(idx).TextAlign = ContentAlignment.MiddleLeft
                 buttons(idx).Padding = New Padding(18, 0, 0, 0)
             Next
-
             pnlMain.Location = New Point(200, 65)
             pnlMain.Width = 800
         End If
 
         sidebarExpanded = Not sidebarExpanded
+    End Sub
+
+    ' ══════════════════════════════════════════
+    '  AI CHATBOT BUTTON                ← NEW
+    ' ══════════════════════════════════════════
+    Private Sub btnChatbot_Click(sender As Object, e As EventArgs) Handles btnChatbot.Click
+        Dim chat As New frmChatbot()
+        chat.UserRole = "admin"
+        chat.UserId = 0
+        chat.UserName = "Admin"
+        chat.Show()
+    End Sub
+
+    Private Sub btnChatbot_MouseEnter(sender As Object, e As EventArgs) Handles btnChatbot.MouseEnter
+        btnChatbot.BackColor = Color.FromArgb(10, 80, 45)
+    End Sub
+
+    Private Sub btnChatbot_MouseLeave(sender As Object, e As EventArgs) Handles btnChatbot.MouseLeave
+        btnChatbot.BackColor = Color.FromArgb(20, 100, 60)
     End Sub
 
     ' ══════════════════════════════════════════
@@ -200,7 +207,6 @@
         End Try
     End Sub
 
-    ' Enter key se bhi search ho
     Private Sub txtStudentId_KeyDown(sender As Object, e As KeyEventArgs) Handles txtStudentId.KeyDown
         If e.KeyCode = Keys.Enter Then btnSearchStudent_Click(sender, e)
     End Sub
@@ -210,22 +216,19 @@
     End Sub
 
     ' ══════════════════════════════════════════
-    '  UI Enhancements (Rounded Corners)
+    '  UI — ROUNDED CORNERS
     ' ══════════════════════════════════════════
     Private Sub DrawRoundedPanel(pnl As Panel, e As PaintEventArgs)
         Dim g As Graphics = e.Graphics
         g.SmoothingMode = Drawing2D.SmoothingMode.AntiAlias
-
         Dim rect As New Rectangle(0, 0, pnl.Width - 1, pnl.Height - 1)
         Dim radius As Integer = 8
         Dim path As New Drawing2D.GraphicsPath()
-
         path.AddArc(rect.X, rect.Y, radius * 2, radius * 2, 180, 90)
         path.AddArc(rect.Right - radius * 2, rect.Y, radius * 2, radius * 2, 270, 90)
         path.AddArc(rect.Right - radius * 2, rect.Bottom - radius * 2, radius * 2, radius * 2, 0, 90)
         path.AddArc(rect.X, rect.Bottom - radius * 2, radius * 2, radius * 2, 90, 90)
         path.CloseFigure()
-
         g.FillPath(New SolidBrush(Color.White), path)
         g.DrawPath(New Pen(Color.FromArgb(226, 232, 240), 1), path)
     End Sub

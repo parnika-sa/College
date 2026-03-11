@@ -18,8 +18,9 @@
         Dim h = Me.ClientSize.Height
 
         pnlTop.Width = w
-        lblWelcome.Location = New Point(w - 300, 18)
-        btnLogout.Location = New Point(w - 115, 14)
+        lblWelcome.Location = New Point(w - 400, 20)
+        btnChatbot.Location = New Point(w - 230, 13)    ' ← NEW: resize pe reposition
+        btnLogout.Location = New Point(w - 115, 13)
         pnlLeft.Height = h - 60
         pnlStats.Width = w - 195
         Dim cardW = (pnlStats.Width - 50) \ 4
@@ -37,12 +38,29 @@
     End Sub
 
     ' ══════════════════════════════════════════
-    '  STATS - 4 Cards  ✅ All DBNull fixed
+    '  AI CHATBOT BUTTON                ← NEW
+    ' ══════════════════════════════════════════
+    Private Sub btnChatbot_Click(sender As Object, e As EventArgs) Handles btnChatbot.Click
+        Dim chat As New frmChatbot()
+        chat.UserRole = "student"
+        chat.UserId = Me.StudentId
+        chat.UserName = Me.StudentName
+        chat.Show()
+    End Sub
+
+    Private Sub btnChatbot_MouseEnter(sender As Object, e As EventArgs) Handles btnChatbot.MouseEnter
+        btnChatbot.BackColor = Color.FromArgb(10, 80, 45)
+    End Sub
+
+    Private Sub btnChatbot_MouseLeave(sender As Object, e As EventArgs) Handles btnChatbot.MouseLeave
+        btnChatbot.BackColor = Color.FromArgb(20, 100, 60)
+    End Sub
+
+    ' ══════════════════════════════════════════
+    '  STATS - 4 Cards
     ' ══════════════════════════════════════════
     Private Sub LoadStats()
         Try
-            ' ── Card 1: Attendance % ──────────────────────────────
-            ' SUM() returns DBNull when table is empty → use COALESCE
             Dim dtAtt = DatabaseHelper.ExecuteQuery(
                 "SELECT COUNT(*) AS total, " &
                 "COALESCE(SUM(CASE WHEN status='Present' THEN 1 ELSE 0 END), 0) AS present " &
@@ -60,23 +78,17 @@
                 lblAttPercent.Text = "N/A"
             End If
 
-            ' ── Card 2: Total Subjects ────────────────────────────
-            ' If no results yet, COUNT returns 0 — still safe with SafeInt
             Dim dtSub = DatabaseHelper.ExecuteQuery(
                 "SELECT COUNT(DISTINCT subject_id) AS total FROM results WHERE student_id=" & StudentId)
-
             If dtSub.Rows.Count > 0 Then
                 lblTotalSubjects.Text = SafeInt(dtSub.Rows(0), "total").ToString()
             Else
                 lblTotalSubjects.Text = "0"
             End If
 
-            ' ── Card 3: Fees Pending ──────────────────────────────
-            ' SUM() on empty rows = DBNull → COALESCE fixes it
             Dim dtFee = DatabaseHelper.ExecuteQuery(
                 "SELECT COALESCE(SUM(amount - paid_amount), 0) AS pending " &
                 "FROM fees WHERE student_id=" & StudentId)
-
             If dtFee.Rows.Count > 0 Then
                 Dim pending = SafeDecimal(dtFee.Rows(0), "pending")
                 If pending >= 100000 Then
@@ -90,11 +102,8 @@
                 lblFeesPending.Text = "Rs.0"
             End If
 
-            ' ── Card 4: Semester ──────────────────────────────────
-            ' student_id might exist but semester could be NULL
             Dim dtSem = DatabaseHelper.ExecuteQuery(
                 "SELECT semester FROM students WHERE student_id=" & StudentId)
-
             If dtSem.Rows.Count > 0 Then
                 lblCurrentSem.Text = "Sem " & SafeStr(dtSem.Rows(0), "semester")
             Else
@@ -162,7 +171,7 @@
     '  PROFILE
     ' ══════════════════════════════════════════
     Private Sub ShowProfile()
-        pnlContentTitle.Text = "  👤  My Profile"
+        lblContentTitle.Text = "  My Profile"
         Try
             Dim query = "SELECT s.roll_no AS `Roll No`, s.first_name AS `First Name`, " &
                         "s.last_name AS `Last Name`, s.email AS `Email`, " &
@@ -183,7 +192,7 @@
     '  ATTENDANCE
     ' ══════════════════════════════════════════
     Private Sub ShowAttendance()
-        pnlContentTitle.Text = "  📅  My Attendance"
+        lblContentTitle.Text = "  My Attendance"
         Try
             Dim query = "SELECT a.att_date AS `Date`, sub.subject_name AS `Subject`, " &
                         "a.status AS `Status` " &
@@ -220,7 +229,7 @@
     '  RESULTS
     ' ══════════════════════════════════════════
     Private Sub ShowResults()
-        pnlContentTitle.Text = "  📝  My Results"
+        lblContentTitle.Text = "  My Results"
         Try
             Dim query = "SELECT sub.subject_name AS `Subject`, r.semester AS `Semester`, " &
                         "r.internal_marks AS `Internal`, r.external_marks AS `External`, " &
@@ -262,7 +271,7 @@
     '  FEES
     ' ══════════════════════════════════════════
     Private Sub ShowFees()
-        pnlContentTitle.Text = "  💰  My Fees"
+        lblContentTitle.Text = "  My Fees"
         Try
             Dim query = "SELECT fee_type AS `Fee Type`, amount AS `Total (Rs.)`, " &
                         "paid_amount AS `Paid (Rs.)`, " &
@@ -333,7 +342,7 @@
     End Sub
 
     ' ══════════════════════════════════════════
-    '  SAFE VALUE HELPERS  ✅ Prevent all DBNull crashes
+    '  SAFE VALUE HELPERS
     ' ══════════════════════════════════════════
     Private Function SafeInt(row As System.Data.DataRow, col As String) As Integer
         If row.Table.Columns.Contains(col) AndAlso

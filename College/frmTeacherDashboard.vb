@@ -20,8 +20,9 @@
         Dim h = Me.ClientSize.Height
 
         pnlTop.Width = w
-        lblWelcome.Location = New Point(w - 300, 18)
-        btnLogout.Location = New Point(w - 115, 14)
+        lblWelcome.Location = New Point(w - 400, 20)
+        btnChatbot.Location = New Point(w - 230, 13)    ' ← NEW
+        btnLogout.Location = New Point(w - 115, 13)
         pnlLeft.Height = h - 60
         pnlStats.Width = w - 195
 
@@ -41,7 +42,26 @@
     End Sub
 
     ' ══════════════════════════════════════════
-    '  Get Teacher's Dept ID first
+    '  AI CHATBOT BUTTON                ← NEW
+    ' ══════════════════════════════════════════
+    Private Sub btnChatbot_Click(sender As Object, e As EventArgs) Handles btnChatbot.Click
+        Dim chat As New frmChatbot()
+        chat.UserRole = "teacher"
+        chat.UserId = Me.TeacherId
+        chat.UserName = Me.TeacherName
+        chat.Show()
+    End Sub
+
+    Private Sub btnChatbot_MouseEnter(sender As Object, e As EventArgs) Handles btnChatbot.MouseEnter
+        btnChatbot.BackColor = Color.FromArgb(10, 80, 45)
+    End Sub
+
+    Private Sub btnChatbot_MouseLeave(sender As Object, e As EventArgs) Handles btnChatbot.MouseLeave
+        btnChatbot.BackColor = Color.FromArgb(20, 100, 60)
+    End Sub
+
+    ' ══════════════════════════════════════════
+    '  GET TEACHER DEPT ID
     ' ══════════════════════════════════════════
     Private Sub LoadTeacherDeptId()
         Try
@@ -60,7 +80,6 @@
     ' ══════════════════════════════════════════
     Private Sub LoadStats()
         Try
-            ' Card 1 - My Students (only same dept)
             Dim dtS = DatabaseHelper.ExecuteQuery(
                 "SELECT COUNT(DISTINCT s.student_id) AS total " &
                 "FROM students s " &
@@ -68,14 +87,12 @@
                 "WHERE c.dept_id=" & TeacherDeptId)
             lblMyStudents.Text = dtS.Rows(0)("total").ToString()
 
-            ' Card 2 - My Subjects (only same dept)
             Dim dtSub = DatabaseHelper.ExecuteQuery(
                 "SELECT COUNT(*) AS total FROM subjects s " &
                 "JOIN courses c ON s.course_id = c.course_id " &
                 "WHERE c.dept_id=" & TeacherDeptId)
             lblMySubjects.Text = dtSub.Rows(0)("total").ToString()
 
-            ' Card 3 - Department name
             Dim dtD = DatabaseHelper.ExecuteQuery(
                 "SELECT dept_name FROM departments WHERE dept_id=" & TeacherDeptId)
             If dtD.Rows.Count > 0 Then
@@ -84,7 +101,6 @@
                 lblDept.Font = New Font("Segoe UI", 14, FontStyle.Bold)
             End If
 
-            ' Card 4 - Today
             lblTodayDate.Text = DateTime.Now.ToString("dd MMM")
             lblTodayDate.Font = New Font("Segoe UI", 16, FontStyle.Bold)
 
@@ -134,7 +150,6 @@
         Next
     End Sub
 
-    ' Hover effects
     Private Sub SideBtn_MouseEnter(sender As Object, e As EventArgs) _
         Handles btnMyProfile.MouseEnter, btnMyStudents.MouseEnter,
                 btnMarkAttendance.MouseEnter, btnViewAttendance.MouseEnter,
@@ -156,10 +171,10 @@
     End Sub
 
     ' ══════════════════════════════════════════
-    '  PROFILE  ✅ Fix: backticks instead of []
+    '  PROFILE
     ' ══════════════════════════════════════════
     Private Sub ShowProfile()
-        lblContentTitle.Text = "  👤  My Profile"
+        lblContentTitle.Text = "  My Profile"
         Try
             Dim query = "SELECT t.emp_code AS `Emp Code`, t.first_name AS `First Name`, " &
                         "t.last_name AS `Last Name`, t.email AS `Email`, " &
@@ -176,10 +191,10 @@
     End Sub
 
     ' ══════════════════════════════════════════
-    '  MY STUDENTS ✅ Fix: backticks + dept filter
+    '  MY STUDENTS
     ' ══════════════════════════════════════════
     Private Sub ShowMyStudents()
-        lblContentTitle.Text = "  👨‍🎓  My Students"
+        lblContentTitle.Text = "  My Students"
         Try
             Dim query = "SELECT s.roll_no AS `Roll No`, " &
                         "CONCAT(s.first_name, ' ', s.last_name) AS `Student Name`, " &
@@ -198,10 +213,10 @@
     End Sub
 
     ' ══════════════════════════════════════════
-    '  ATTENDANCE SUMMARY ✅ Fix: backticks + dept
+    '  ATTENDANCE SUMMARY
     ' ══════════════════════════════════════════
     Private Sub ShowAttendanceSummary()
-        lblContentTitle.Text = "  📅  Attendance Summary"
+        lblContentTitle.Text = "  Attendance Summary"
         Try
             Dim query = "SELECT CONCAT(s.roll_no, ' - ', s.first_name, ' ', s.last_name) AS `Student`, " &
                         "sub.subject_name AS `Subject`, " &
@@ -220,7 +235,6 @@
             dgvMain.DataSource = dt
             StyleGrid()
 
-            ' Color low attendance rows
             For Each row As DataGridViewRow In dgvMain.Rows
                 If row.Cells("Att %").Value IsNot Nothing Then
                     Dim attStr = row.Cells("Att %").Value.ToString().Replace("%", "")
@@ -280,6 +294,6 @@
     End Sub
 
     Private Sub lblCard2Icon_Click(sender As Object, e As EventArgs) Handles lblCard2Icon.Click
-
     End Sub
+
 End Class

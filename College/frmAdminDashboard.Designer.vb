@@ -23,6 +23,7 @@ Partial Class frmAdminDashboard
         Me.lblWelcome = New Label()
         Me.btnHamburger = New Button()
         Me.btnLogout = New Button()
+        Me.btnChatbot = New Button()      ' ← NEW
 
         Me.pnlSidebar = New Panel()
         Me.lblMenuTitle = New Label()
@@ -85,9 +86,11 @@ Partial Class frmAdminDashboard
         Me.pnlHeader.BackColor = Color.FromArgb(31, 73, 125)
         Me.pnlHeader.Dock = DockStyle.Top
         Me.pnlHeader.Height = 65
-        Me.pnlHeader.Controls.AddRange({
-            Me.btnHamburger, Me.lblSystemName, Me.lblWelcome, Me.btnLogout
-        })
+        Me.pnlHeader.Controls.Add(Me.btnHamburger)
+        Me.pnlHeader.Controls.Add(Me.lblSystemName)
+        Me.pnlHeader.Controls.Add(Me.lblWelcome)
+        Me.pnlHeader.Controls.Add(Me.btnChatbot)     ' ← NEW
+        Me.pnlHeader.Controls.Add(Me.btnLogout)
 
         ' Hamburger Button
         Me.btnHamburger.Text = "☰"
@@ -111,17 +114,30 @@ Partial Class frmAdminDashboard
         Me.lblWelcome.Text = "Welcome, Admin!"
         Me.lblWelcome.Font = New Font("Segoe UI", 9)
         Me.lblWelcome.ForeColor = Color.FromArgb(180, 210, 240)
-        Me.lblWelcome.Location = New Point(580, 22)
+        Me.lblWelcome.Location = New Point(560, 22)
         Me.lblWelcome.AutoSize = True
         Me.lblWelcome.Name = "lblWelcome"
 
-        Me.btnLogout.Text = "⏻  Logout"
+        ' ── AI Assistant Button (header mein) ──
+        Me.btnChatbot.Text = "AI Assistant"
+        Me.btnChatbot.Font = New Font("Segoe UI", 9, FontStyle.Bold)
+        Me.btnChatbot.BackColor = Color.FromArgb(20, 100, 60)
+        Me.btnChatbot.ForeColor = Color.White
+        Me.btnChatbot.FlatStyle = FlatStyle.Flat
+        Me.btnChatbot.FlatAppearance.BorderSize = 0
+        Me.btnChatbot.FlatAppearance.MouseOverBackColor = Color.FromArgb(10, 80, 45)
+        Me.btnChatbot.Location = New Point(755, 15)
+        Me.btnChatbot.Size = New Size(120, 35)
+        Me.btnChatbot.Cursor = Cursors.Hand
+        Me.btnChatbot.Name = "btnChatbot"
+
+        Me.btnLogout.Text = "Logout"
         Me.btnLogout.Font = New Font("Segoe UI", 9, FontStyle.Bold)
         Me.btnLogout.BackColor = Color.FromArgb(192, 57, 43)
         Me.btnLogout.ForeColor = Color.White
         Me.btnLogout.FlatStyle = FlatStyle.Flat
         Me.btnLogout.FlatAppearance.BorderSize = 0
-        Me.btnLogout.Location = New Point(890, 15)
+        Me.btnLogout.Location = New Point(885, 15)
         Me.btnLogout.Size = New Size(100, 35)
         Me.btnLogout.Cursor = Cursors.Hand
         Me.btnLogout.Name = "btnLogout"
@@ -132,11 +148,12 @@ Partial Class frmAdminDashboard
         Me.pnlSidebar.BackColor = Color.FromArgb(26, 32, 44)
         Me.pnlSidebar.Location = New Point(0, 65)
         Me.pnlSidebar.Size = New Size(200, 635)
-        Me.pnlSidebar.Controls.AddRange({
-            Me.lblMenuTitle,
-            Me.btnStudents, Me.btnTeachers,
-            Me.btnAttendance, Me.btnResults, Me.btnFees
-        })
+        Me.pnlSidebar.Controls.Add(Me.lblMenuTitle)
+        Me.pnlSidebar.Controls.Add(Me.btnStudents)
+        Me.pnlSidebar.Controls.Add(Me.btnTeachers)
+        Me.pnlSidebar.Controls.Add(Me.btnAttendance)
+        Me.pnlSidebar.Controls.Add(Me.btnResults)
+        Me.pnlSidebar.Controls.Add(Me.btnFees)
 
         Me.lblMenuTitle.Text = "NAVIGATION"
         Me.lblMenuTitle.Font = New Font("Segoe UI", 7, FontStyle.Bold)
@@ -145,14 +162,13 @@ Partial Class frmAdminDashboard
         Me.lblMenuTitle.AutoSize = True
         Me.lblMenuTitle.Name = "lblMenuTitle"
 
-        ' ✅ Fix: Store original emoji icons for collapse/expand use
         Dim sideButtons() As Button = {
             Me.btnStudents, Me.btnTeachers,
             Me.btnAttendance, Me.btnResults, Me.btnFees
         }
         Dim sideTexts() As String = {
-            "👨‍🎓   Students", "👨‍🏫   Teachers",
-            "📅   Attendance", "📝   Results", "💰   Fees"
+            "Students", "Teachers",
+            "Attendance", "Results", "Fees"
         }
         Dim sideNames() As String = {
             "btnStudents", "btnTeachers",
@@ -180,10 +196,12 @@ Partial Class frmAdminDashboard
         Me.pnlMain.BackColor = Color.FromArgb(247, 248, 252)
         Me.pnlMain.Location = New Point(200, 65)
         Me.pnlMain.Size = New Size(800, 635)
-        Me.pnlMain.Controls.AddRange({
-            Me.pnlCard1, Me.pnlCard2, Me.pnlCard3, Me.pnlCard4,
-            Me.pnlSearch, Me.pnlInfo
-        })
+        Me.pnlMain.Controls.Add(Me.pnlCard1)
+        Me.pnlMain.Controls.Add(Me.pnlCard2)
+        Me.pnlMain.Controls.Add(Me.pnlCard3)
+        Me.pnlMain.Controls.Add(Me.pnlCard4)
+        Me.pnlMain.Controls.Add(Me.pnlSearch)
+        Me.pnlMain.Controls.Add(Me.pnlInfo)
 
         ' ── 4 Stat Cards ──
         Dim cards() As Panel = {Me.pnlCard1, Me.pnlCard2, Me.pnlCard3, Me.pnlCard4}
@@ -192,7 +210,7 @@ Partial Class frmAdminDashboard
         Dim values() As Label = {Me.lblStudentCount, Me.lblTeacherCount, Me.lblFeesAmount, Me.lblPendingAmount}
         Dim subs() As Label = {Me.lblCard1Sub, Me.lblCard2Sub, Me.lblCard3Sub, Me.lblCard4Sub}
 
-        Dim iconTexts() As String = {"👨‍🎓", "👨‍🏫", "✅", "⏳"}
+        Dim iconTexts() As String = {"S", "T", "C", "P"}
         Dim titleTexts() As String = {"Total Students", "Total Teachers", "Fees Collected", "Fees Pending"}
         Dim subTexts() As String = {"Enrolled", "Active", "Amount received", "Amount due"}
         Dim valueNames() As String = {"lblStudentCount", "lblTeacherCount", "lblFeesAmount", "lblPendingAmount"}
@@ -213,10 +231,14 @@ Partial Class frmAdminDashboard
             cards(i).BackColor = cardBg(i)
             cards(i).Location = New Point(15 + (i * 193), 15)
             cards(i).Size = New Size(180, 120)
-            cards(i).Controls.AddRange({icons(i), titles(i), values(i), subs(i)})
+            cards(i).Controls.Add(icons(i))
+            cards(i).Controls.Add(titles(i))
+            cards(i).Controls.Add(values(i))
+            cards(i).Controls.Add(subs(i))
 
             icons(i).Text = iconTexts(i)
-            icons(i).Font = New Font("Segoe UI", 18)
+            icons(i).Font = New Font("Segoe UI", 18, FontStyle.Bold)
+            icons(i).ForeColor = valColors(i)
             icons(i).Location = New Point(140, 8)
             icons(i).AutoSize = True
 
@@ -247,19 +269,20 @@ Partial Class frmAdminDashboard
         Me.pnlSearch.BackColor = Color.White
         Me.pnlSearch.Location = New Point(15, 150)
         Me.pnlSearch.Size = New Size(770, 100)
-        Me.pnlSearch.Controls.AddRange({
-            Me.lblSearchTitle,
-            Me.lblSearchStudent, Me.txtStudentId, Me.btnSearchStudent,
-            Me.lblSearchTeacher, Me.txtTeacherId, Me.btnSearchTeacher
-        })
+        Me.pnlSearch.Controls.Add(Me.lblSearchTitle)
+        Me.pnlSearch.Controls.Add(Me.lblSearchStudent)
+        Me.pnlSearch.Controls.Add(Me.txtStudentId)
+        Me.pnlSearch.Controls.Add(Me.btnSearchStudent)
+        Me.pnlSearch.Controls.Add(Me.lblSearchTeacher)
+        Me.pnlSearch.Controls.Add(Me.txtTeacherId)
+        Me.pnlSearch.Controls.Add(Me.btnSearchTeacher)
 
-        Me.lblSearchTitle.Text = "🔍  Quick Search"
+        Me.lblSearchTitle.Text = "Quick Search"
         Me.lblSearchTitle.Font = New Font("Segoe UI", 11, FontStyle.Bold)
         Me.lblSearchTitle.ForeColor = Color.FromArgb(31, 73, 125)
         Me.lblSearchTitle.Location = New Point(15, 12)
         Me.lblSearchTitle.AutoSize = True
 
-        ' Student Search
         Me.lblSearchStudent.Text = "Student ID:"
         Me.lblSearchStudent.Font = New Font("Segoe UI", 9, FontStyle.Bold)
         Me.lblSearchStudent.ForeColor = Color.Gray
@@ -284,7 +307,6 @@ Partial Class frmAdminDashboard
         Me.btnSearchStudent.Cursor = Cursors.Hand
         Me.btnSearchStudent.Name = "btnSearchStudent"
 
-        ' Teacher Search
         Me.lblSearchTeacher.Text = "Teacher ID:"
         Me.lblSearchTeacher.Font = New Font("Segoe UI", 9, FontStyle.Bold)
         Me.lblSearchTeacher.ForeColor = Color.Gray
@@ -337,7 +359,9 @@ Partial Class frmAdminDashboard
         '  FORM
         ' ══════════════════════════════
         Me.ClientSize = New Size(1000, 700)
-        Me.Controls.AddRange({Me.pnlHeader, Me.pnlSidebar, Me.pnlMain})
+        Me.Controls.Add(Me.pnlHeader)
+        Me.Controls.Add(Me.pnlSidebar)
+        Me.Controls.Add(Me.pnlMain)
         Me.BackColor = Color.FromArgb(247, 248, 252)
         Me.FormBorderStyle = FormBorderStyle.FixedSingle
         Me.MaximizeBox = False
@@ -358,6 +382,7 @@ Partial Class frmAdminDashboard
     Friend WithEvents lblWelcome As Label
     Friend WithEvents btnHamburger As Button
     Friend WithEvents btnLogout As Button
+    Friend WithEvents btnChatbot As Button          ' ← NEW
     Friend WithEvents pnlSidebar As Panel
     Friend WithEvents lblMenuTitle As Label
     Friend WithEvents btnStudents As Button
