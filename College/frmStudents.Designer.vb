@@ -20,55 +20,54 @@ Partial Class frmStudents
         Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
 
-        ' ── Controls ──────────────────────────────────────────────
-        Me.pnlHeader = New System.Windows.Forms.Panel()
-        Me.lblTitle = New System.Windows.Forms.Label()
-        Me.lblSubtitle = New System.Windows.Forms.Label()
+        Me.pnlHeader      = New System.Windows.Forms.Panel()
+        Me.lblTitle       = New System.Windows.Forms.Label()
+        Me.lblSubtitle    = New System.Windows.Forms.Label()
 
-        Me.pnlSidebar = New System.Windows.Forms.Panel()
-        Me.lblFormTitle = New System.Windows.Forms.Label()
-        Me.lblDivider = New System.Windows.Forms.Label()
+        Me.pnlSidebar     = New System.Windows.Forms.Panel()
+        Me.lblFormTitle   = New System.Windows.Forms.Label()
+        Me.lblDivider     = New System.Windows.Forms.Label()
 
-        Me.lblRollNo = New System.Windows.Forms.Label()
-        Me.txtRollNo = New System.Windows.Forms.TextBox()
-        Me.lblFirstName = New System.Windows.Forms.Label()
-        Me.txtFirstName = New System.Windows.Forms.TextBox()
-        Me.lblLastName = New System.Windows.Forms.Label()
-        Me.txtLastName = New System.Windows.Forms.TextBox()
-        Me.lblEmail = New System.Windows.Forms.Label()
-        Me.txtEmail = New System.Windows.Forms.TextBox()
-        Me.lblPhone = New System.Windows.Forms.Label()
-        Me.txtPhone = New System.Windows.Forms.TextBox()
-        Me.lblDOB = New System.Windows.Forms.Label()
-        Me.dtpDOB = New System.Windows.Forms.DateTimePicker()
-        Me.lblGender = New System.Windows.Forms.Label()
-        Me.cmbGender = New System.Windows.Forms.ComboBox()
-        Me.lblCourse = New System.Windows.Forms.Label()
-        Me.cmbCourse = New System.Windows.Forms.ComboBox()
-        Me.lblSemester = New System.Windows.Forms.Label()
-        Me.cmbSemester = New System.Windows.Forms.ComboBox()
+        Me.lblRollNo      = New System.Windows.Forms.Label()
+        Me.txtRollNo      = New System.Windows.Forms.TextBox()
+        Me.lblFirstName   = New System.Windows.Forms.Label()
+        Me.txtFirstName   = New System.Windows.Forms.TextBox()
+        Me.lblLastName    = New System.Windows.Forms.Label()
+        Me.txtLastName    = New System.Windows.Forms.TextBox()
+        Me.lblEmail       = New System.Windows.Forms.Label()
+        Me.txtEmail       = New System.Windows.Forms.TextBox()
+        Me.lblPhone       = New System.Windows.Forms.Label()
+        Me.txtPhone       = New System.Windows.Forms.TextBox()
+        Me.lblDOB         = New System.Windows.Forms.Label()
+        Me.dtpDOB         = New System.Windows.Forms.DateTimePicker()
+        Me.lblGender      = New System.Windows.Forms.Label()
+        Me.cmbGender      = New System.Windows.Forms.ComboBox()
+        Me.lblCourse      = New System.Windows.Forms.Label()
+        Me.cmbCourse      = New System.Windows.Forms.ComboBox()
+        Me.lblSemester    = New System.Windows.Forms.Label()
+        Me.cmbSemester    = New System.Windows.Forms.ComboBox()
         Me.lblAdmissionYear = New System.Windows.Forms.Label()
         Me.txtAdmissionYear = New System.Windows.Forms.TextBox()
-        Me.lblAddress = New System.Windows.Forms.Label()
-        Me.txtAddress = New System.Windows.Forms.TextBox()
+        Me.lblAddress     = New System.Windows.Forms.Label()
+        Me.txtAddress     = New System.Windows.Forms.TextBox()
 
-        Me.pnlButtons = New System.Windows.Forms.Panel()
-        Me.btnNew = New System.Windows.Forms.Button()
-        Me.btnSave = New System.Windows.Forms.Button()
-        Me.btnUpdate = New System.Windows.Forms.Button()
-        Me.btnDelete = New System.Windows.Forms.Button()
-        Me.btnClear = New System.Windows.Forms.Button()
+        Me.pnlButtons     = New System.Windows.Forms.Panel()
+        Me.btnNew         = New System.Windows.Forms.Button()
+        Me.btnSave        = New System.Windows.Forms.Button()
+        Me.btnUpdate      = New System.Windows.Forms.Button()
+        Me.btnDelete      = New System.Windows.Forms.Button()
+        Me.btnClear       = New System.Windows.Forms.Button()
 
-        Me.pnlMain = New System.Windows.Forms.Panel()
-        Me.pnlSearch = New System.Windows.Forms.Panel()
-        Me.lblSearchIcon = New System.Windows.Forms.Label()
-        Me.txtSearch = New System.Windows.Forms.TextBox()
-        Me.btnSearch = New System.Windows.Forms.Button()
-        Me.btnShowAll = New System.Windows.Forms.Button()
+        Me.pnlMain        = New System.Windows.Forms.Panel()
+        Me.pnlSearch      = New System.Windows.Forms.Panel()
+        Me.lblSearchIcon  = New System.Windows.Forms.Label()
+        Me.txtSearch      = New System.Windows.Forms.TextBox()
+        Me.btnSearch      = New System.Windows.Forms.Button()
+        Me.btnShowAll     = New System.Windows.Forms.Button()
         Me.lblRecordCount = New System.Windows.Forms.Label()
-        Me.dgvStudents = New System.Windows.Forms.DataGridView()
-        Me.pnlStatus = New System.Windows.Forms.Panel()
-        Me.lblStatus = New System.Windows.Forms.Label()
+        Me.dgvStudents    = New System.Windows.Forms.DataGridView()
+        Me.pnlStatus      = New System.Windows.Forms.Panel()
+        Me.lblStatus      = New System.Windows.Forms.Label()
 
         Me.pnlHeader.SuspendLayout()
         Me.pnlSidebar.SuspendLayout()
@@ -79,280 +78,270 @@ Partial Class frmStudents
         Me.SuspendLayout()
 
         ' ══════════════════════════════════════════════
-        '  HEADER PANEL
+        '  HEADER
         ' ══════════════════════════════════════════════
         Me.pnlHeader.BackColor = System.Drawing.Color.FromArgb(22, 50, 92)
         Me.pnlHeader.Controls.Add(Me.lblTitle)
         Me.pnlHeader.Controls.Add(Me.lblSubtitle)
         Me.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top
-        Me.pnlHeader.Location = New System.Drawing.Point(0, 0)
         Me.pnlHeader.Name = "pnlHeader"
         Me.pnlHeader.Size = New System.Drawing.Size(1180, 65)
-        Me.pnlHeader.TabIndex = 0
 
-        Me.lblTitle.Font = New System.Drawing.Font("Segoe UI", 16.0!, System.Drawing.FontStyle.Bold)
+        Me.lblTitle.Font      = New System.Drawing.Font("Segoe UI", 16.0!, System.Drawing.FontStyle.Bold)
         Me.lblTitle.ForeColor = System.Drawing.Color.White
-        Me.lblTitle.Location = New System.Drawing.Point(20, 8)
-        Me.lblTitle.Name = "lblTitle"
-        Me.lblTitle.Size = New System.Drawing.Size(400, 30)
-        Me.lblTitle.Text = "Student Management"
+        Me.lblTitle.Location  = New System.Drawing.Point(20, 8)
+        Me.lblTitle.Name      = "lblTitle"
+        Me.lblTitle.Size      = New System.Drawing.Size(400, 30)
+        Me.lblTitle.Text      = "Student Management"
 
-        Me.lblSubtitle.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblSubtitle.Font      = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.lblSubtitle.ForeColor = System.Drawing.Color.FromArgb(180, 200, 230)
-        Me.lblSubtitle.Location = New System.Drawing.Point(22, 38)
-        Me.lblSubtitle.Name = "lblSubtitle"
-        Me.lblSubtitle.Size = New System.Drawing.Size(400, 18)
-        Me.lblSubtitle.Text = "Add, edit and manage student records"
+        Me.lblSubtitle.Location  = New System.Drawing.Point(22, 38)
+        Me.lblSubtitle.Name      = "lblSubtitle"
+        Me.lblSubtitle.Size      = New System.Drawing.Size(400, 18)
+        Me.lblSubtitle.Text      = "Add, edit and manage student records"
 
         ' ══════════════════════════════════════════════
-        '  SIDEBAR (LEFT FORM PANEL)
+        '  SIDEBAR
         ' ══════════════════════════════════════════════
         Me.pnlSidebar.BackColor = System.Drawing.Color.FromArgb(245, 247, 252)
-        Me.pnlSidebar.Dock = System.Windows.Forms.DockStyle.Left
-        Me.pnlSidebar.Location = New System.Drawing.Point(0, 65)
-        Me.pnlSidebar.Name = "pnlSidebar"
-        Me.pnlSidebar.Padding = New System.Windows.Forms.Padding(18, 14, 18, 10)
-        Me.pnlSidebar.Size = New System.Drawing.Size(310, 665)
-        Me.pnlSidebar.TabIndex = 1
+        Me.pnlSidebar.Dock      = System.Windows.Forms.DockStyle.Left
+        Me.pnlSidebar.Name      = "pnlSidebar"
+        Me.pnlSidebar.Padding   = New System.Windows.Forms.Padding(18, 14, 18, 10)
+        Me.pnlSidebar.Size      = New System.Drawing.Size(310, 665)
 
-        ' Form Title inside sidebar
-        Me.lblFormTitle.Font = New System.Drawing.Font("Segoe UI Semibold", 10.5!)
+        Me.lblFormTitle.Font      = New System.Drawing.Font("Segoe UI Semibold", 10.5!)
         Me.lblFormTitle.ForeColor = System.Drawing.Color.FromArgb(22, 50, 92)
-        Me.lblFormTitle.Location = New System.Drawing.Point(18, 14)
-        Me.lblFormTitle.Name = "lblFormTitle"
-        Me.lblFormTitle.Size = New System.Drawing.Size(270, 22)
-        Me.lblFormTitle.Text = "Student Details"
+        Me.lblFormTitle.Location  = New System.Drawing.Point(18, 14)
+        Me.lblFormTitle.Name      = "lblFormTitle"
+        Me.lblFormTitle.Size      = New System.Drawing.Size(270, 22)
+        Me.lblFormTitle.Text      = "Student Details"
 
         Me.lblDivider.BackColor = System.Drawing.Color.FromArgb(210, 220, 240)
-        Me.lblDivider.Location = New System.Drawing.Point(18, 40)
-        Me.lblDivider.Name = "lblDivider"
-        Me.lblDivider.Size = New System.Drawing.Size(270, 1)
+        Me.lblDivider.Location  = New System.Drawing.Point(18, 40)
+        Me.lblDivider.Name      = "lblDivider"
+        Me.lblDivider.Size      = New System.Drawing.Size(270, 1)
 
-        ' ── Roll No ──
-        Me.lblRollNo.Font = New System.Drawing.Font("Segoe UI", 8.5!, System.Drawing.FontStyle.Bold)
+        ' Roll No
+        Me.lblRollNo.Font      = New System.Drawing.Font("Segoe UI", 8.5!, System.Drawing.FontStyle.Bold)
         Me.lblRollNo.ForeColor = System.Drawing.Color.FromArgb(80, 90, 110)
-        Me.lblRollNo.Location = New System.Drawing.Point(18, 50)
-        Me.lblRollNo.Name = "lblRollNo"
-        Me.lblRollNo.Size = New System.Drawing.Size(270, 16)
-        Me.lblRollNo.Text = "ROLL NO  *"
+        Me.lblRollNo.Location  = New System.Drawing.Point(18, 50)
+        Me.lblRollNo.Name      = "lblRollNo"
+        Me.lblRollNo.Size      = New System.Drawing.Size(270, 16)
+        Me.lblRollNo.Text      = "ROLL NO  *"
 
         Me.txtRollNo.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.txtRollNo.Font = New System.Drawing.Font("Segoe UI", 10.0!)
-        Me.txtRollNo.Location = New System.Drawing.Point(18, 68)
-        Me.txtRollNo.Name = "txtRollNo"
-        Me.txtRollNo.Size = New System.Drawing.Size(270, 26)
+        Me.txtRollNo.Font        = New System.Drawing.Font("Segoe UI", 10.0!)
+        Me.txtRollNo.Location    = New System.Drawing.Point(18, 68)
+        Me.txtRollNo.Name        = "txtRollNo"
+        Me.txtRollNo.Size        = New System.Drawing.Size(270, 26)
 
-        ' ── First / Last Name ──
-        Me.lblFirstName.Font = New System.Drawing.Font("Segoe UI", 8.5!, System.Drawing.FontStyle.Bold)
+        ' First / Last Name
+        Me.lblFirstName.Font      = New System.Drawing.Font("Segoe UI", 8.5!, System.Drawing.FontStyle.Bold)
         Me.lblFirstName.ForeColor = System.Drawing.Color.FromArgb(80, 90, 110)
-        Me.lblFirstName.Location = New System.Drawing.Point(18, 103)
-        Me.lblFirstName.Name = "lblFirstName"
-        Me.lblFirstName.Size = New System.Drawing.Size(125, 16)
-        Me.lblFirstName.Text = "FIRST NAME  *"
+        Me.lblFirstName.Location  = New System.Drawing.Point(18, 103)
+        Me.lblFirstName.Name      = "lblFirstName"
+        Me.lblFirstName.Size      = New System.Drawing.Size(125, 16)
+        Me.lblFirstName.Text      = "FIRST NAME  *"
 
         Me.txtFirstName.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.txtFirstName.Font = New System.Drawing.Font("Segoe UI", 10.0!)
-        Me.txtFirstName.Location = New System.Drawing.Point(18, 121)
-        Me.txtFirstName.Name = "txtFirstName"
-        Me.txtFirstName.Size = New System.Drawing.Size(125, 26)
+        Me.txtFirstName.Font        = New System.Drawing.Font("Segoe UI", 10.0!)
+        Me.txtFirstName.Location    = New System.Drawing.Point(18, 121)
+        Me.txtFirstName.Name        = "txtFirstName"
+        Me.txtFirstName.Size        = New System.Drawing.Size(125, 26)
 
-        Me.lblLastName.Font = New System.Drawing.Font("Segoe UI", 8.5!, System.Drawing.FontStyle.Bold)
+        Me.lblLastName.Font      = New System.Drawing.Font("Segoe UI", 8.5!, System.Drawing.FontStyle.Bold)
         Me.lblLastName.ForeColor = System.Drawing.Color.FromArgb(80, 90, 110)
-        Me.lblLastName.Location = New System.Drawing.Point(160, 103)
-        Me.lblLastName.Name = "lblLastName"
-        Me.lblLastName.Size = New System.Drawing.Size(128, 16)
-        Me.lblLastName.Text = "LAST NAME  *"
+        Me.lblLastName.Location  = New System.Drawing.Point(160, 103)
+        Me.lblLastName.Name      = "lblLastName"
+        Me.lblLastName.Size      = New System.Drawing.Size(128, 16)
+        Me.lblLastName.Text      = "LAST NAME  *"
 
         Me.txtLastName.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.txtLastName.Font = New System.Drawing.Font("Segoe UI", 10.0!)
-        Me.txtLastName.Location = New System.Drawing.Point(160, 121)
-        Me.txtLastName.Name = "txtLastName"
-        Me.txtLastName.Size = New System.Drawing.Size(128, 26)
+        Me.txtLastName.Font        = New System.Drawing.Font("Segoe UI", 10.0!)
+        Me.txtLastName.Location    = New System.Drawing.Point(160, 121)
+        Me.txtLastName.Name        = "txtLastName"
+        Me.txtLastName.Size        = New System.Drawing.Size(128, 26)
 
-        ' ── Email ──
-        Me.lblEmail.Font = New System.Drawing.Font("Segoe UI", 8.5!, System.Drawing.FontStyle.Bold)
+        ' Email
+        Me.lblEmail.Font      = New System.Drawing.Font("Segoe UI", 8.5!, System.Drawing.FontStyle.Bold)
         Me.lblEmail.ForeColor = System.Drawing.Color.FromArgb(80, 90, 110)
-        Me.lblEmail.Location = New System.Drawing.Point(18, 156)
-        Me.lblEmail.Name = "lblEmail"
-        Me.lblEmail.Size = New System.Drawing.Size(270, 16)
-        Me.lblEmail.Text = "EMAIL ADDRESS"
+        Me.lblEmail.Location  = New System.Drawing.Point(18, 156)
+        Me.lblEmail.Name      = "lblEmail"
+        Me.lblEmail.Size      = New System.Drawing.Size(270, 16)
+        Me.lblEmail.Text      = "EMAIL ADDRESS"
 
         Me.txtEmail.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.txtEmail.Font = New System.Drawing.Font("Segoe UI", 10.0!)
-        Me.txtEmail.Location = New System.Drawing.Point(18, 174)
-        Me.txtEmail.Name = "txtEmail"
-        Me.txtEmail.Size = New System.Drawing.Size(270, 26)
+        Me.txtEmail.Font        = New System.Drawing.Font("Segoe UI", 10.0!)
+        Me.txtEmail.Location    = New System.Drawing.Point(18, 174)
+        Me.txtEmail.Name        = "txtEmail"
+        Me.txtEmail.Size        = New System.Drawing.Size(270, 26)
 
-        ' ── Phone / DOB ──
-        Me.lblPhone.Font = New System.Drawing.Font("Segoe UI", 8.5!, System.Drawing.FontStyle.Bold)
+        ' Phone / DOB
+        Me.lblPhone.Font      = New System.Drawing.Font("Segoe UI", 8.5!, System.Drawing.FontStyle.Bold)
         Me.lblPhone.ForeColor = System.Drawing.Color.FromArgb(80, 90, 110)
-        Me.lblPhone.Location = New System.Drawing.Point(18, 209)
-        Me.lblPhone.Name = "lblPhone"
-        Me.lblPhone.Size = New System.Drawing.Size(125, 16)
-        Me.lblPhone.Text = "PHONE"
+        Me.lblPhone.Location  = New System.Drawing.Point(18, 209)
+        Me.lblPhone.Name      = "lblPhone"
+        Me.lblPhone.Size      = New System.Drawing.Size(125, 16)
+        Me.lblPhone.Text      = "PHONE"
 
         Me.txtPhone.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.txtPhone.Font = New System.Drawing.Font("Segoe UI", 10.0!)
-        Me.txtPhone.Location = New System.Drawing.Point(18, 227)
-        Me.txtPhone.Name = "txtPhone"
-        Me.txtPhone.Size = New System.Drawing.Size(125, 26)
+        Me.txtPhone.Font        = New System.Drawing.Font("Segoe UI", 10.0!)
+        Me.txtPhone.Location    = New System.Drawing.Point(18, 227)
+        Me.txtPhone.Name        = "txtPhone"
+        Me.txtPhone.Size        = New System.Drawing.Size(125, 26)
 
-        Me.lblDOB.Font = New System.Drawing.Font("Segoe UI", 8.5!, System.Drawing.FontStyle.Bold)
+        Me.lblDOB.Font      = New System.Drawing.Font("Segoe UI", 8.5!, System.Drawing.FontStyle.Bold)
         Me.lblDOB.ForeColor = System.Drawing.Color.FromArgb(80, 90, 110)
-        Me.lblDOB.Location = New System.Drawing.Point(160, 209)
-        Me.lblDOB.Name = "lblDOB"
-        Me.lblDOB.Size = New System.Drawing.Size(128, 16)
-        Me.lblDOB.Text = "DATE OF BIRTH"
+        Me.lblDOB.Location  = New System.Drawing.Point(160, 209)
+        Me.lblDOB.Name      = "lblDOB"
+        Me.lblDOB.Size      = New System.Drawing.Size(128, 16)
+        Me.lblDOB.Text      = "DATE OF BIRTH"
 
-        Me.dtpDOB.Font = New System.Drawing.Font("Segoe UI", 9.5!)
-        Me.dtpDOB.Format = System.Windows.Forms.DateTimePickerFormat.Short
+        Me.dtpDOB.Font     = New System.Drawing.Font("Segoe UI", 9.5!)
+        Me.dtpDOB.Format   = System.Windows.Forms.DateTimePickerFormat.Short
         Me.dtpDOB.Location = New System.Drawing.Point(160, 227)
-        Me.dtpDOB.Name = "dtpDOB"
-        Me.dtpDOB.Size = New System.Drawing.Size(128, 26)
+        Me.dtpDOB.Name     = "dtpDOB"
+        Me.dtpDOB.Size     = New System.Drawing.Size(128, 26)
 
-        ' ── Gender / Course ──
-        Me.lblGender.Font = New System.Drawing.Font("Segoe UI", 8.5!, System.Drawing.FontStyle.Bold)
+        ' Gender / Course
+        Me.lblGender.Font      = New System.Drawing.Font("Segoe UI", 8.5!, System.Drawing.FontStyle.Bold)
         Me.lblGender.ForeColor = System.Drawing.Color.FromArgb(80, 90, 110)
-        Me.lblGender.Location = New System.Drawing.Point(18, 262)
-        Me.lblGender.Name = "lblGender"
-        Me.lblGender.Size = New System.Drawing.Size(125, 16)
-        Me.lblGender.Text = "GENDER"
+        Me.lblGender.Location  = New System.Drawing.Point(18, 262)
+        Me.lblGender.Name      = "lblGender"
+        Me.lblGender.Size      = New System.Drawing.Size(125, 16)
+        Me.lblGender.Text      = "GENDER"
 
         Me.cmbGender.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cmbGender.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.cmbGender.Font = New System.Drawing.Font("Segoe UI", 10.0!)
+        Me.cmbGender.FlatStyle     = System.Windows.Forms.FlatStyle.Flat
+        Me.cmbGender.Font          = New System.Drawing.Font("Segoe UI", 10.0!)
         Me.cmbGender.Items.AddRange(New Object() {"Male", "Female", "Other"})
-        Me.cmbGender.Location = New System.Drawing.Point(18, 280)
-        Me.cmbGender.Name = "cmbGender"
-        Me.cmbGender.Size = New System.Drawing.Size(125, 26)
+        Me.cmbGender.Location      = New System.Drawing.Point(18, 280)
+        Me.cmbGender.Name          = "cmbGender"
+        Me.cmbGender.Size          = New System.Drawing.Size(125, 26)
 
-        Me.lblCourse.Font = New System.Drawing.Font("Segoe UI", 8.5!, System.Drawing.FontStyle.Bold)
+        Me.lblCourse.Font      = New System.Drawing.Font("Segoe UI", 8.5!, System.Drawing.FontStyle.Bold)
         Me.lblCourse.ForeColor = System.Drawing.Color.FromArgb(80, 90, 110)
-        Me.lblCourse.Location = New System.Drawing.Point(160, 262)
-        Me.lblCourse.Name = "lblCourse"
-        Me.lblCourse.Size = New System.Drawing.Size(128, 16)
-        Me.lblCourse.Text = "COURSE  *"
+        Me.lblCourse.Location  = New System.Drawing.Point(160, 262)
+        Me.lblCourse.Name      = "lblCourse"
+        Me.lblCourse.Size      = New System.Drawing.Size(128, 16)
+        Me.lblCourse.Text      = "COURSE  *"
 
         Me.cmbCourse.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cmbCourse.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.cmbCourse.Font = New System.Drawing.Font("Segoe UI", 10.0!)
-        Me.cmbCourse.Location = New System.Drawing.Point(160, 280)
-        Me.cmbCourse.Name = "cmbCourse"
-        Me.cmbCourse.Size = New System.Drawing.Size(128, 26)
+        Me.cmbCourse.FlatStyle     = System.Windows.Forms.FlatStyle.Flat
+        Me.cmbCourse.Font          = New System.Drawing.Font("Segoe UI", 10.0!)
+        Me.cmbCourse.Location      = New System.Drawing.Point(160, 280)
+        Me.cmbCourse.Name          = "cmbCourse"
+        Me.cmbCourse.Size          = New System.Drawing.Size(128, 26)
 
-        ' ── Semester / Admission Year ──
-        Me.lblSemester.Font = New System.Drawing.Font("Segoe UI", 8.5!, System.Drawing.FontStyle.Bold)
+        ' Semester / Admission Year
+        Me.lblSemester.Font      = New System.Drawing.Font("Segoe UI", 8.5!, System.Drawing.FontStyle.Bold)
         Me.lblSemester.ForeColor = System.Drawing.Color.FromArgb(80, 90, 110)
-        Me.lblSemester.Location = New System.Drawing.Point(18, 315)
-        Me.lblSemester.Name = "lblSemester"
-        Me.lblSemester.Size = New System.Drawing.Size(125, 16)
-        Me.lblSemester.Text = "SEMESTER"
+        Me.lblSemester.Location  = New System.Drawing.Point(18, 315)
+        Me.lblSemester.Name      = "lblSemester"
+        Me.lblSemester.Size      = New System.Drawing.Size(125, 16)
+        Me.lblSemester.Text      = "SEMESTER"
 
         Me.cmbSemester.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cmbSemester.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.cmbSemester.Font = New System.Drawing.Font("Segoe UI", 10.0!)
+        Me.cmbSemester.FlatStyle     = System.Windows.Forms.FlatStyle.Flat
+        Me.cmbSemester.Font          = New System.Drawing.Font("Segoe UI", 10.0!)
         Me.cmbSemester.Items.AddRange(New Object() {"1", "2", "3", "4", "5", "6", "7", "8"})
-        Me.cmbSemester.Location = New System.Drawing.Point(18, 333)
-        Me.cmbSemester.Name = "cmbSemester"
-        Me.cmbSemester.Size = New System.Drawing.Size(125, 26)
+        Me.cmbSemester.Location      = New System.Drawing.Point(18, 333)
+        Me.cmbSemester.Name          = "cmbSemester"
+        Me.cmbSemester.Size          = New System.Drawing.Size(125, 26)
 
-        Me.lblAdmissionYear.Font = New System.Drawing.Font("Segoe UI", 8.5!, System.Drawing.FontStyle.Bold)
+        Me.lblAdmissionYear.Font      = New System.Drawing.Font("Segoe UI", 8.5!, System.Drawing.FontStyle.Bold)
         Me.lblAdmissionYear.ForeColor = System.Drawing.Color.FromArgb(80, 90, 110)
-        Me.lblAdmissionYear.Location = New System.Drawing.Point(160, 315)
-        Me.lblAdmissionYear.Name = "lblAdmissionYear"
-        Me.lblAdmissionYear.Size = New System.Drawing.Size(128, 16)
-        Me.lblAdmissionYear.Text = "ADMISSION YEAR"
+        Me.lblAdmissionYear.Location  = New System.Drawing.Point(160, 315)
+        Me.lblAdmissionYear.Name      = "lblAdmissionYear"
+        Me.lblAdmissionYear.Size      = New System.Drawing.Size(128, 16)
+        Me.lblAdmissionYear.Text      = "ADMISSION YEAR"
 
         Me.txtAdmissionYear.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.txtAdmissionYear.Font = New System.Drawing.Font("Segoe UI", 10.0!)
-        Me.txtAdmissionYear.Location = New System.Drawing.Point(160, 333)
-        Me.txtAdmissionYear.Name = "txtAdmissionYear"
-        Me.txtAdmissionYear.Size = New System.Drawing.Size(128, 26)
+        Me.txtAdmissionYear.Font        = New System.Drawing.Font("Segoe UI", 10.0!)
+        Me.txtAdmissionYear.Location    = New System.Drawing.Point(160, 333)
+        Me.txtAdmissionYear.Name        = "txtAdmissionYear"
+        Me.txtAdmissionYear.Size        = New System.Drawing.Size(128, 26)
 
-        ' ── Address ──
-        Me.lblAddress.Font = New System.Drawing.Font("Segoe UI", 8.5!, System.Drawing.FontStyle.Bold)
+        ' Address
+        Me.lblAddress.Font      = New System.Drawing.Font("Segoe UI", 8.5!, System.Drawing.FontStyle.Bold)
         Me.lblAddress.ForeColor = System.Drawing.Color.FromArgb(80, 90, 110)
-        Me.lblAddress.Location = New System.Drawing.Point(18, 368)
-        Me.lblAddress.Name = "lblAddress"
-        Me.lblAddress.Size = New System.Drawing.Size(270, 16)
-        Me.lblAddress.Text = "ADDRESS"
+        Me.lblAddress.Location  = New System.Drawing.Point(18, 368)
+        Me.lblAddress.Name      = "lblAddress"
+        Me.lblAddress.Size      = New System.Drawing.Size(270, 16)
+        Me.lblAddress.Text      = "ADDRESS"
 
         Me.txtAddress.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.txtAddress.Font = New System.Drawing.Font("Segoe UI", 10.0!)
-        Me.txtAddress.Location = New System.Drawing.Point(18, 386)
-        Me.txtAddress.Multiline = True
-        Me.txtAddress.Name = "txtAddress"
-        Me.txtAddress.Size = New System.Drawing.Size(270, 55)
+        Me.txtAddress.Font        = New System.Drawing.Font("Segoe UI", 10.0!)
+        Me.txtAddress.Location    = New System.Drawing.Point(18, 386)
+        Me.txtAddress.Multiline   = True
+        Me.txtAddress.Name        = "txtAddress"
+        Me.txtAddress.Size        = New System.Drawing.Size(270, 55)
 
         ' ── Button Panel ──
         Me.pnlButtons.BackColor = System.Drawing.Color.FromArgb(235, 238, 248)
-        Me.pnlButtons.Location = New System.Drawing.Point(0, 455)
-        Me.pnlButtons.Name = "pnlButtons"
-        Me.pnlButtons.Padding = New System.Windows.Forms.Padding(18, 10, 18, 10)
-        Me.pnlButtons.Size = New System.Drawing.Size(310, 210)
+        Me.pnlButtons.Location  = New System.Drawing.Point(0, 455)
+        Me.pnlButtons.Name      = "pnlButtons"
+        Me.pnlButtons.Padding   = New System.Windows.Forms.Padding(18, 10, 18, 10)
+        Me.pnlButtons.Size      = New System.Drawing.Size(310, 210)
 
-        ' NEW Button
-        Me.btnNew.BackColor = System.Drawing.Color.FromArgb(22, 50, 92)
+        Me.btnNew.BackColor               = System.Drawing.Color.FromArgb(22, 50, 92)
         Me.btnNew.FlatAppearance.BorderSize = 0
-        Me.btnNew.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.btnNew.Font = New System.Drawing.Font("Segoe UI", 9.5!, System.Drawing.FontStyle.Bold)
-        Me.btnNew.ForeColor = System.Drawing.Color.White
-        Me.btnNew.Location = New System.Drawing.Point(18, 10)
-        Me.btnNew.Name = "btnNew"
-        Me.btnNew.Size = New System.Drawing.Size(270, 36)
-        Me.btnNew.Text = "+ ADD NEW STUDENT"
-        Me.btnNew.Cursor = System.Windows.Forms.Cursors.Hand
+        Me.btnNew.FlatStyle               = System.Windows.Forms.FlatStyle.Flat
+        Me.btnNew.Font                    = New System.Drawing.Font("Segoe UI", 9.5!, System.Drawing.FontStyle.Bold)
+        Me.btnNew.ForeColor               = System.Drawing.Color.White
+        Me.btnNew.Location                = New System.Drawing.Point(18, 10)
+        Me.btnNew.Name                    = "btnNew"
+        Me.btnNew.Size                    = New System.Drawing.Size(270, 36)
+        Me.btnNew.Text                    = "+ ADD NEW STUDENT"
+        Me.btnNew.Cursor                  = System.Windows.Forms.Cursors.Hand
 
-        ' SAVE Button
-        Me.btnSave.BackColor = System.Drawing.Color.FromArgb(39, 174, 96)
+        Me.btnSave.BackColor               = System.Drawing.Color.FromArgb(39, 174, 96)
         Me.btnSave.FlatAppearance.BorderSize = 0
-        Me.btnSave.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.btnSave.Font = New System.Drawing.Font("Segoe UI", 9.5!, System.Drawing.FontStyle.Bold)
-        Me.btnSave.ForeColor = System.Drawing.Color.White
-        Me.btnSave.Location = New System.Drawing.Point(18, 54)
-        Me.btnSave.Name = "btnSave"
-        Me.btnSave.Size = New System.Drawing.Size(270, 36)
-        Me.btnSave.Text = "SAVE STUDENT"
-        Me.btnSave.Visible = False
-        Me.btnSave.Cursor = System.Windows.Forms.Cursors.Hand
+        Me.btnSave.FlatStyle               = System.Windows.Forms.FlatStyle.Flat
+        Me.btnSave.Font                    = New System.Drawing.Font("Segoe UI", 9.5!, System.Drawing.FontStyle.Bold)
+        Me.btnSave.ForeColor               = System.Drawing.Color.White
+        Me.btnSave.Location                = New System.Drawing.Point(18, 54)
+        Me.btnSave.Name                    = "btnSave"
+        Me.btnSave.Size                    = New System.Drawing.Size(270, 36)
+        Me.btnSave.Text                    = "SAVE STUDENT"
+        Me.btnSave.Visible                 = False
+        Me.btnSave.Cursor                  = System.Windows.Forms.Cursors.Hand
 
-        ' UPDATE Button
-        Me.btnUpdate.BackColor = System.Drawing.Color.FromArgb(41, 128, 185)
+        Me.btnUpdate.BackColor               = System.Drawing.Color.FromArgb(41, 128, 185)
         Me.btnUpdate.FlatAppearance.BorderSize = 0
-        Me.btnUpdate.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.btnUpdate.Font = New System.Drawing.Font("Segoe UI", 9.5!, System.Drawing.FontStyle.Bold)
-        Me.btnUpdate.ForeColor = System.Drawing.Color.White
-        Me.btnUpdate.Location = New System.Drawing.Point(18, 54)
-        Me.btnUpdate.Name = "btnUpdate"
-        Me.btnUpdate.Size = New System.Drawing.Size(130, 36)
-        Me.btnUpdate.Text = "UPDATE"
-        Me.btnUpdate.Visible = False
-        Me.btnUpdate.Cursor = System.Windows.Forms.Cursors.Hand
+        Me.btnUpdate.FlatStyle               = System.Windows.Forms.FlatStyle.Flat
+        Me.btnUpdate.Font                    = New System.Drawing.Font("Segoe UI", 9.5!, System.Drawing.FontStyle.Bold)
+        Me.btnUpdate.ForeColor               = System.Drawing.Color.White
+        Me.btnUpdate.Location                = New System.Drawing.Point(18, 54)
+        Me.btnUpdate.Name                    = "btnUpdate"
+        Me.btnUpdate.Size                    = New System.Drawing.Size(130, 36)
+        Me.btnUpdate.Text                    = "UPDATE"
+        Me.btnUpdate.Visible                 = False
+        Me.btnUpdate.Cursor                  = System.Windows.Forms.Cursors.Hand
 
-        ' DELETE Button
-        Me.btnDelete.BackColor = System.Drawing.Color.FromArgb(192, 57, 43)
+        Me.btnDelete.BackColor               = System.Drawing.Color.FromArgb(192, 57, 43)
         Me.btnDelete.FlatAppearance.BorderSize = 0
-        Me.btnDelete.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.btnDelete.Font = New System.Drawing.Font("Segoe UI", 9.5!, System.Drawing.FontStyle.Bold)
-        Me.btnDelete.ForeColor = System.Drawing.Color.White
-        Me.btnDelete.Location = New System.Drawing.Point(158, 54)
-        Me.btnDelete.Name = "btnDelete"
-        Me.btnDelete.Size = New System.Drawing.Size(130, 36)
-        Me.btnDelete.Text = "DELETE"
-        Me.btnDelete.Visible = False
-        Me.btnDelete.Cursor = System.Windows.Forms.Cursors.Hand
+        Me.btnDelete.FlatStyle               = System.Windows.Forms.FlatStyle.Flat
+        Me.btnDelete.Font                    = New System.Drawing.Font("Segoe UI", 9.5!, System.Drawing.FontStyle.Bold)
+        Me.btnDelete.ForeColor               = System.Drawing.Color.White
+        Me.btnDelete.Location                = New System.Drawing.Point(158, 54)
+        Me.btnDelete.Name                    = "btnDelete"
+        Me.btnDelete.Size                    = New System.Drawing.Size(130, 36)
+        Me.btnDelete.Text                    = "DELETE"
+        Me.btnDelete.Visible                 = False
+        Me.btnDelete.Cursor                  = System.Windows.Forms.Cursors.Hand
 
-        ' CLEAR Button
-        Me.btnClear.BackColor = System.Drawing.Color.FromArgb(127, 140, 141)
+        Me.btnClear.BackColor               = System.Drawing.Color.FromArgb(127, 140, 141)
         Me.btnClear.FlatAppearance.BorderSize = 0
-        Me.btnClear.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.btnClear.Font = New System.Drawing.Font("Segoe UI", 9.5!)
-        Me.btnClear.ForeColor = System.Drawing.Color.White
-        Me.btnClear.Location = New System.Drawing.Point(18, 100)
-        Me.btnClear.Name = "btnClear"
-        Me.btnClear.Size = New System.Drawing.Size(270, 32)
-        Me.btnClear.Text = "CANCEL / CLEAR FORM"
-        Me.btnClear.Cursor = System.Windows.Forms.Cursors.Hand
+        Me.btnClear.FlatStyle               = System.Windows.Forms.FlatStyle.Flat
+        Me.btnClear.Font                    = New System.Drawing.Font("Segoe UI", 9.5!)
+        Me.btnClear.ForeColor               = System.Drawing.Color.White
+        Me.btnClear.Location                = New System.Drawing.Point(18, 100)
+        Me.btnClear.Name                    = "btnClear"
+        Me.btnClear.Size                    = New System.Drawing.Size(270, 32)
+        Me.btnClear.Text                    = "CANCEL / CLEAR FORM"
+        Me.btnClear.Cursor                  = System.Windows.Forms.Cursors.Hand
 
         Me.pnlButtons.Controls.Add(Me.btnNew)
         Me.pnlButtons.Controls.Add(Me.btnSave)
@@ -360,7 +349,6 @@ Partial Class frmStudents
         Me.pnlButtons.Controls.Add(Me.btnDelete)
         Me.pnlButtons.Controls.Add(Me.btnClear)
 
-        ' Add all controls to sidebar
         Me.pnlSidebar.Controls.Add(Me.lblFormTitle)
         Me.pnlSidebar.Controls.Add(Me.lblDivider)
         Me.pnlSidebar.Controls.Add(Me.lblRollNo)
@@ -391,60 +379,60 @@ Partial Class frmStudents
         '  MAIN RIGHT PANEL
         ' ══════════════════════════════════════════════
         Me.pnlMain.BackColor = System.Drawing.Color.White
-        Me.pnlMain.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.pnlMain.Location = New System.Drawing.Point(310, 65)
-        Me.pnlMain.Name = "pnlMain"
-        Me.pnlMain.Padding = New System.Windows.Forms.Padding(15, 12, 15, 10)
-        Me.pnlMain.Size = New System.Drawing.Size(870, 665)
+        Me.pnlMain.Dock      = System.Windows.Forms.DockStyle.Fill
+        Me.pnlMain.Name      = "pnlMain"
+        Me.pnlMain.Padding   = New System.Windows.Forms.Padding(15, 12, 15, 10)
+        Me.pnlMain.Size      = New System.Drawing.Size(870, 665)
 
         ' ── Search Panel ──
         Me.pnlSearch.BackColor = System.Drawing.Color.FromArgb(245, 247, 252)
-        Me.pnlSearch.Location = New System.Drawing.Point(15, 12)
-        Me.pnlSearch.Name = "pnlSearch"
-        Me.pnlSearch.Size = New System.Drawing.Size(840, 50)
+        Me.pnlSearch.Location  = New System.Drawing.Point(15, 12)
+        Me.pnlSearch.Name      = "pnlSearch"
+        Me.pnlSearch.Size      = New System.Drawing.Size(840, 50)
 
-        Me.lblSearchIcon.Font = New System.Drawing.Font("Segoe UI", 10.0!)
+        Me.lblSearchIcon.Font      = New System.Drawing.Font("Segoe UI", 10.0!)
         Me.lblSearchIcon.ForeColor = System.Drawing.Color.FromArgb(120, 130, 150)
-        Me.lblSearchIcon.Location = New System.Drawing.Point(8, 14)
-        Me.lblSearchIcon.Name = "lblSearchIcon"
-        Me.lblSearchIcon.Size = New System.Drawing.Size(22, 22)
-        Me.lblSearchIcon.Text = "🔍"
+        Me.lblSearchIcon.Location  = New System.Drawing.Point(8, 14)
+        Me.lblSearchIcon.Name      = "lblSearchIcon"
+        Me.lblSearchIcon.Size      = New System.Drawing.Size(22, 22)
+        Me.lblSearchIcon.Text      = "🔍"
 
+        ' ★ PlaceholderText added — shows hint when box is empty
         Me.txtSearch.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.txtSearch.Font = New System.Drawing.Font("Segoe UI", 10.0!)
-        Me.txtSearch.ForeColor = System.Drawing.Color.FromArgb(80, 90, 110)
-        Me.txtSearch.Location = New System.Drawing.Point(34, 13)
-        Me.txtSearch.Name = "txtSearch"
-        Me.txtSearch.Size = New System.Drawing.Size(340, 26)
+        Me.txtSearch.Font        = New System.Drawing.Font("Segoe UI", 10.0!)
+        Me.txtSearch.ForeColor   = System.Drawing.Color.FromArgb(80, 90, 110)
+        Me.txtSearch.Location    = New System.Drawing.Point(34, 13)
+        Me.txtSearch.Name        = "txtSearch"
+        Me.txtSearch.Size        = New System.Drawing.Size(340, 26)
 
-        Me.btnSearch.BackColor = System.Drawing.Color.FromArgb(22, 50, 92)
+        Me.btnSearch.BackColor               = System.Drawing.Color.FromArgb(22, 50, 92)
         Me.btnSearch.FlatAppearance.BorderSize = 0
-        Me.btnSearch.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.btnSearch.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold)
-        Me.btnSearch.ForeColor = System.Drawing.Color.White
-        Me.btnSearch.Location = New System.Drawing.Point(382, 10)
-        Me.btnSearch.Name = "btnSearch"
-        Me.btnSearch.Size = New System.Drawing.Size(110, 30)
-        Me.btnSearch.Text = "Search"
-        Me.btnSearch.Cursor = System.Windows.Forms.Cursors.Hand
+        Me.btnSearch.FlatStyle               = System.Windows.Forms.FlatStyle.Flat
+        Me.btnSearch.Font                    = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold)
+        Me.btnSearch.ForeColor               = System.Drawing.Color.White
+        Me.btnSearch.Location                = New System.Drawing.Point(382, 10)
+        Me.btnSearch.Name                    = "btnSearch"
+        Me.btnSearch.Size                    = New System.Drawing.Size(110, 30)
+        Me.btnSearch.Text                    = "Search"
+        Me.btnSearch.Cursor                  = System.Windows.Forms.Cursors.Hand
 
-        Me.btnShowAll.BackColor = System.Drawing.Color.FromArgb(41, 128, 185)
+        Me.btnShowAll.BackColor               = System.Drawing.Color.FromArgb(41, 128, 185)
         Me.btnShowAll.FlatAppearance.BorderSize = 0
-        Me.btnShowAll.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.btnShowAll.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold)
-        Me.btnShowAll.ForeColor = System.Drawing.Color.White
-        Me.btnShowAll.Location = New System.Drawing.Point(500, 10)
-        Me.btnShowAll.Name = "btnShowAll"
-        Me.btnShowAll.Size = New System.Drawing.Size(110, 30)
-        Me.btnShowAll.Text = "Show All"
-        Me.btnShowAll.Cursor = System.Windows.Forms.Cursors.Hand
+        Me.btnShowAll.FlatStyle               = System.Windows.Forms.FlatStyle.Flat
+        Me.btnShowAll.Font                    = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold)
+        Me.btnShowAll.ForeColor               = System.Drawing.Color.White
+        Me.btnShowAll.Location                = New System.Drawing.Point(500, 10)
+        Me.btnShowAll.Name                    = "btnShowAll"
+        Me.btnShowAll.Size                    = New System.Drawing.Size(110, 30)
+        Me.btnShowAll.Text                    = "Show All"
+        Me.btnShowAll.Cursor                  = System.Windows.Forms.Cursors.Hand
 
-        Me.lblRecordCount.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblRecordCount.Font      = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.lblRecordCount.ForeColor = System.Drawing.Color.FromArgb(100, 110, 130)
-        Me.lblRecordCount.Location = New System.Drawing.Point(622, 14)
-        Me.lblRecordCount.Name = "lblRecordCount"
-        Me.lblRecordCount.Size = New System.Drawing.Size(200, 22)
-        Me.lblRecordCount.Text = "Total Records: 0"
+        Me.lblRecordCount.Location  = New System.Drawing.Point(622, 14)
+        Me.lblRecordCount.Name      = "lblRecordCount"
+        Me.lblRecordCount.Size      = New System.Drawing.Size(200, 22)
+        Me.lblRecordCount.Text      = "Total Records: 0"
         Me.lblRecordCount.TextAlign = System.Drawing.ContentAlignment.MiddleRight
 
         Me.pnlSearch.Controls.Add(Me.lblSearchIcon)
@@ -454,54 +442,53 @@ Partial Class frmStudents
         Me.pnlSearch.Controls.Add(Me.lblRecordCount)
 
         ' ── DataGridView ──
-        Me.dgvStudents.AllowUserToAddRows = False
+        Me.dgvStudents.AllowUserToAddRows    = False
         Me.dgvStudents.AllowUserToDeleteRows = False
         Me.dgvStudents.AllowUserToResizeRows = False
-        Me.dgvStudents.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill
-        Me.dgvStudents.BackgroundColor = System.Drawing.Color.White
-        Me.dgvStudents.BorderStyle = System.Windows.Forms.BorderStyle.None
-        Me.dgvStudents.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleHorizontal
+        Me.dgvStudents.AutoSizeColumnsMode   = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill
+        Me.dgvStudents.BackgroundColor       = System.Drawing.Color.White
+        Me.dgvStudents.BorderStyle           = System.Windows.Forms.BorderStyle.None
+        Me.dgvStudents.CellBorderStyle       = System.Windows.Forms.DataGridViewCellBorderStyle.SingleHorizontal
 
-        DataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(22, 50, 92)
-        DataGridViewCellStyle1.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold)
-        DataGridViewCellStyle1.ForeColor = System.Drawing.Color.White
-        DataGridViewCellStyle1.Padding = New System.Windows.Forms.Padding(6, 0, 0, 0)
-        Me.dgvStudents.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle1
-        Me.dgvStudents.ColumnHeadersHeight = 38
-        Me.dgvStudents.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing
-        Me.dgvStudents.EnableHeadersVisualStyles = False
+        DataGridViewCellStyle1.Alignment  = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle1.BackColor  = System.Drawing.Color.FromArgb(22, 50, 92)
+        DataGridViewCellStyle1.Font       = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold)
+        DataGridViewCellStyle1.ForeColor  = System.Drawing.Color.White
+        DataGridViewCellStyle1.Padding    = New System.Windows.Forms.Padding(6, 0, 0, 0)
+        Me.dgvStudents.ColumnHeadersDefaultCellStyle      = DataGridViewCellStyle1
+        Me.dgvStudents.ColumnHeadersHeight                = 38
+        Me.dgvStudents.ColumnHeadersHeightSizeMode        = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing
+        Me.dgvStudents.EnableHeadersVisualStyles          = False
 
-        DataGridViewCellStyle2.BackColor = System.Drawing.Color.White
-        DataGridViewCellStyle2.Font = New System.Drawing.Font("Segoe UI", 9.5!)
-        DataGridViewCellStyle2.ForeColor = System.Drawing.Color.FromArgb(50, 60, 80)
-        DataGridViewCellStyle2.Padding = New System.Windows.Forms.Padding(6, 0, 0, 0)
+        DataGridViewCellStyle2.BackColor          = System.Drawing.Color.White
+        DataGridViewCellStyle2.Font               = New System.Drawing.Font("Segoe UI", 9.5!)
+        DataGridViewCellStyle2.ForeColor          = System.Drawing.Color.FromArgb(50, 60, 80)
+        DataGridViewCellStyle2.Padding            = New System.Windows.Forms.Padding(6, 0, 0, 0)
         DataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.FromArgb(210, 225, 245)
         DataGridViewCellStyle2.SelectionForeColor = System.Drawing.Color.FromArgb(22, 50, 92)
-        Me.dgvStudents.DefaultCellStyle = DataGridViewCellStyle2
+        Me.dgvStudents.DefaultCellStyle           = DataGridViewCellStyle2
 
-        Me.dgvStudents.GridColor = System.Drawing.Color.FromArgb(220, 225, 235)
-        Me.dgvStudents.Location = New System.Drawing.Point(15, 70)
-        Me.dgvStudents.Name = "dgvStudents"
-        Me.dgvStudents.ReadOnly = True
+        Me.dgvStudents.GridColor        = System.Drawing.Color.FromArgb(220, 225, 235)
+        Me.dgvStudents.Location         = New System.Drawing.Point(15, 70)
+        Me.dgvStudents.Name             = "dgvStudents"
+        Me.dgvStudents.ReadOnly         = True
         Me.dgvStudents.RowHeadersVisible = False
         Me.dgvStudents.RowTemplate.Height = 32
-        Me.dgvStudents.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.dgvStudents.Size = New System.Drawing.Size(840, 560)
+        Me.dgvStudents.SelectionMode    = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
+        Me.dgvStudents.Size             = New System.Drawing.Size(840, 560)
 
         ' ── Status Bar ──
         Me.pnlStatus.BackColor = System.Drawing.Color.FromArgb(22, 50, 92)
-        Me.pnlStatus.Dock = System.Windows.Forms.DockStyle.Bottom
-        Me.pnlStatus.Location = New System.Drawing.Point(310, 700)
-        Me.pnlStatus.Name = "pnlStatus"
-        Me.pnlStatus.Size = New System.Drawing.Size(870, 30)
+        Me.pnlStatus.Dock      = System.Windows.Forms.DockStyle.Bottom
+        Me.pnlStatus.Name      = "pnlStatus"
+        Me.pnlStatus.Size      = New System.Drawing.Size(870, 30)
 
-        Me.lblStatus.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblStatus.Font      = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.lblStatus.ForeColor = System.Drawing.Color.FromArgb(180, 200, 230)
-        Me.lblStatus.Location = New System.Drawing.Point(10, 6)
-        Me.lblStatus.Name = "lblStatus"
-        Me.lblStatus.Size = New System.Drawing.Size(600, 18)
-        Me.lblStatus.Text = "Ready"
+        Me.lblStatus.Location  = New System.Drawing.Point(10, 6)
+        Me.lblStatus.Name      = "lblStatus"
+        Me.lblStatus.Size      = New System.Drawing.Size(600, 18)
+        Me.lblStatus.Text      = "Ready"
         Me.pnlStatus.Controls.Add(Me.lblStatus)
 
         Me.pnlMain.Controls.Add(Me.pnlSearch)
@@ -511,18 +498,18 @@ Partial Class frmStudents
         ' ══════════════════════════════════════════════
         '  FORM SETTINGS
         ' ══════════════════════════════════════════════
-        Me.BackColor = System.Drawing.Color.White
-        Me.ClientSize = New System.Drawing.Size(1180, 730)
+        Me.BackColor        = System.Drawing.Color.White
+        Me.ClientSize       = New System.Drawing.Size(1180, 730)
         Me.Controls.Add(Me.pnlMain)
         Me.Controls.Add(Me.pnlSidebar)
         Me.Controls.Add(Me.pnlHeader)
-        Me.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
-        Me.MaximizeBox = False
-        Me.MinimizeBox = True
-        Me.Name = "frmStudents"
-        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
-        Me.Text = "College ERP — Student Management"
+        Me.Font             = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.FormBorderStyle  = System.Windows.Forms.FormBorderStyle.FixedSingle
+        Me.MaximizeBox      = False
+        Me.MinimizeBox      = True
+        Me.Name             = "frmStudents"
+        Me.StartPosition    = System.Windows.Forms.FormStartPosition.CenterScreen
+        Me.Text             = "College ERP — Student Management"
 
         Me.pnlHeader.ResumeLayout(False)
         Me.pnlSidebar.ResumeLayout(False)
@@ -535,54 +522,54 @@ Partial Class frmStudents
         Me.ResumeLayout(False)
     End Sub
 
-    ' ── Control Declarations ──────────────────────────────────────
-    Friend WithEvents pnlHeader As Panel
-    Friend WithEvents lblTitle As Label
-    Friend WithEvents lblSubtitle As Label
+    ' ── Declarations ──────────────────────────────────────────────
+    Friend WithEvents pnlHeader      As Panel
+    Friend WithEvents lblTitle       As Label
+    Friend WithEvents lblSubtitle    As Label
 
-    Friend WithEvents pnlSidebar As Panel
-    Friend WithEvents lblFormTitle As Label
-    Friend WithEvents lblDivider As Label
+    Friend WithEvents pnlSidebar     As Panel
+    Friend WithEvents lblFormTitle   As Label
+    Friend WithEvents lblDivider     As Label
 
-    Friend WithEvents lblRollNo As Label
-    Friend WithEvents txtRollNo As TextBox
-    Friend WithEvents lblFirstName As Label
-    Friend WithEvents txtFirstName As TextBox
-    Friend WithEvents lblLastName As Label
-    Friend WithEvents txtLastName As TextBox
-    Friend WithEvents lblEmail As Label
-    Friend WithEvents txtEmail As TextBox
-    Friend WithEvents lblPhone As Label
-    Friend WithEvents txtPhone As TextBox
-    Friend WithEvents lblDOB As Label
-    Friend WithEvents dtpDOB As DateTimePicker
-    Friend WithEvents lblGender As Label
-    Friend WithEvents cmbGender As ComboBox
-    Friend WithEvents lblCourse As Label
-    Friend WithEvents cmbCourse As ComboBox
-    Friend WithEvents lblSemester As Label
-    Friend WithEvents cmbSemester As ComboBox
+    Friend WithEvents lblRollNo      As Label
+    Friend WithEvents txtRollNo      As TextBox
+    Friend WithEvents lblFirstName   As Label
+    Friend WithEvents txtFirstName   As TextBox
+    Friend WithEvents lblLastName    As Label
+    Friend WithEvents txtLastName    As TextBox
+    Friend WithEvents lblEmail       As Label
+    Friend WithEvents txtEmail       As TextBox
+    Friend WithEvents lblPhone       As Label
+    Friend WithEvents txtPhone       As TextBox
+    Friend WithEvents lblDOB         As Label
+    Friend WithEvents dtpDOB         As DateTimePicker
+    Friend WithEvents lblGender      As Label
+    Friend WithEvents cmbGender      As ComboBox
+    Friend WithEvents lblCourse      As Label
+    Friend WithEvents cmbCourse      As ComboBox
+    Friend WithEvents lblSemester    As Label
+    Friend WithEvents cmbSemester    As ComboBox
     Friend WithEvents lblAdmissionYear As Label
     Friend WithEvents txtAdmissionYear As TextBox
-    Friend WithEvents lblAddress As Label
-    Friend WithEvents txtAddress As TextBox
+    Friend WithEvents lblAddress     As Label
+    Friend WithEvents txtAddress     As TextBox
 
-    Friend WithEvents pnlButtons As Panel
-    Friend WithEvents btnNew As Button
-    Friend WithEvents btnSave As Button
-    Friend WithEvents btnUpdate As Button
-    Friend WithEvents btnDelete As Button
-    Friend WithEvents btnClear As Button
+    Friend WithEvents pnlButtons     As Panel
+    Friend WithEvents btnNew         As Button
+    Friend WithEvents btnSave        As Button
+    Friend WithEvents btnUpdate      As Button
+    Friend WithEvents btnDelete      As Button
+    Friend WithEvents btnClear       As Button
 
-    Friend WithEvents pnlMain As Panel
-    Friend WithEvents pnlSearch As Panel
-    Friend WithEvents lblSearchIcon As Label
-    Friend WithEvents txtSearch As TextBox
-    Friend WithEvents btnSearch As Button
-    Friend WithEvents btnShowAll As Button
+    Friend WithEvents pnlMain        As Panel
+    Friend WithEvents pnlSearch      As Panel
+    Friend WithEvents lblSearchIcon  As Label
+    Friend WithEvents txtSearch      As TextBox
+    Friend WithEvents btnSearch      As Button
+    Friend WithEvents btnShowAll     As Button
     Friend WithEvents lblRecordCount As Label
-    Friend WithEvents dgvStudents As DataGridView
-    Friend WithEvents pnlStatus As Panel
-    Friend WithEvents lblStatus As Label
+    Friend WithEvents dgvStudents    As DataGridView
+    Friend WithEvents pnlStatus      As Panel
+    Friend WithEvents lblStatus      As Label
 
 End Class

@@ -14,7 +14,7 @@
             "Tuition Fee", "Exam Fee", "Library Fee",
             "Sports Fee", "Lab Fee", "Other"})
         cmbFeeType.SelectedIndex = -1
-        cmbStatus.SelectedIndex = -1
+        cmbStatus.SelectedIndex  = -1
 
         dtpDueDate.Value  = DateTime.Now
         dtpPaidDate.Value = DateTime.Now
@@ -39,32 +39,36 @@
     '  LOAD COURSES
     ' ══════════════════════════════════════════
     Private Sub LoadCourses()
-        Dim dt = DatabaseHelper.ExecuteQuery("SELECT course_id, course_name FROM courses ORDER BY course_name")
-        cmbCourse.DataSource = dt
+        Dim dt = DatabaseHelper.ExecuteQuery(
+            "SELECT course_id, course_name FROM courses ORDER BY course_name")
+        cmbCourse.DataSource    = dt
         cmbCourse.DisplayMember = "course_name"
-        cmbCourse.ValueMember = "course_id"
+        cmbCourse.ValueMember   = "course_id"
         cmbCourse.SelectedIndex = -1
     End Sub
 
     Private Sub LoadViewCourses()
-        Dim dt = DatabaseHelper.ExecuteQuery("SELECT course_id, course_name FROM courses ORDER BY course_name")
-        cmbViewCourse.DataSource = dt
+        Dim dt = DatabaseHelper.ExecuteQuery(
+            "SELECT course_id, course_name FROM courses ORDER BY course_name")
+        cmbViewCourse.DataSource    = dt
         cmbViewCourse.DisplayMember = "course_name"
-        cmbViewCourse.ValueMember = "course_id"
+        cmbViewCourse.ValueMember   = "course_id"
         cmbViewCourse.SelectedIndex = -1
     End Sub
 
     ' ══════════════════════════════════════════
     '  COURSE → LOAD STUDENTS
     ' ══════════════════════════════════════════
-    Private Sub cmbCourse_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cmbCourse.SelectedIndexChanged
+    Private Sub cmbCourse_SelectedIndexChanged(sender As Object, e As EventArgs) _
+        Handles cmbCourse.SelectedIndexChanged
         If cmbCourse.SelectedIndex = -1 Then Return
         Dim courseId = GetComboValue(cmbCourse)
         If courseId = -1 Then Return
         LoadStudentsForCourse(cmbStudent, courseId)
     End Sub
 
-    Private Sub cmbViewCourse_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cmbViewCourse.SelectedIndexChanged
+    Private Sub cmbViewCourse_SelectedIndexChanged(sender As Object, e As EventArgs) _
+        Handles cmbViewCourse.SelectedIndexChanged
         If cmbViewCourse.SelectedIndex = -1 Then Return
         Dim courseId = GetComboValue(cmbViewCourse)
         If courseId = -1 Then Return
@@ -75,16 +79,17 @@
         Dim dt = DatabaseHelper.ExecuteQuery(
             "SELECT student_id, CONCAT(roll_no, ' - ', first_name, ' ', last_name) AS name " &
             "FROM students WHERE course_id=" & courseId & " ORDER BY roll_no")
-        cmb.DataSource = dt
+        cmb.DataSource    = dt
         cmb.DisplayMember = "name"
-        cmb.ValueMember = "student_id"
+        cmb.ValueMember   = "student_id"
         cmb.SelectedIndex = -1
     End Sub
 
     ' ══════════════════════════════════════════
     '  PAID AMOUNT → AUTO STATUS
     ' ══════════════════════════════════════════
-    Private Sub txtPaidAmount_TextChanged(sender As Object, e As EventArgs) Handles txtPaidAmount.TextChanged
+    Private Sub txtPaidAmount_TextChanged(sender As Object, e As EventArgs) _
+        Handles txtPaidAmount.TextChanged
         Try
             If txtAmount.Text.Trim() = "" OrElse txtPaidAmount.Text.Trim() = "" Then Return
             Dim total As Decimal = Convert.ToDecimal(txtAmount.Text)
@@ -99,6 +104,33 @@
         Catch
         End Try
     End Sub
+
+    ' ══════════════════════════════════════════
+    '  ★ DUPLICATE CHECK HELPER
+    '  Returns True if same student + fee_type
+    '  already exists (optionally excluding a fee_id)
+    ' ══════════════════════════════════════════
+    Private Function DuplicateFeeExists(studentId As Integer,
+                                        feeType   As String,
+                                        excludeId As Integer) As Boolean
+        Dim escapedType = feeType.Replace("'", "''")
+        Dim query As String
+
+        If excludeId > 0 Then
+            ' UPDATE mode — ignore the record being edited
+            query = "SELECT COUNT(*) FROM fees " &
+                    "WHERE student_id=" & studentId &
+                    " AND fee_type='" & escapedType & "'" &
+                    " AND fee_id <> " & excludeId
+        Else
+            ' INSERT mode — check all records
+            query = "SELECT COUNT(*) FROM fees " &
+                    "WHERE student_id=" & studentId &
+                    " AND fee_type='" & escapedType & "'"
+        End If
+
+        Return DatabaseHelper.ExecuteScalar(query) > 0
+    End Function
 
     ' ══════════════════════════════════════════
     '  SAVE FEE RECORD
@@ -120,19 +152,33 @@
             Return
         End If
 
+        ' ★ DUPLICATE BLOCK
+        Dim studentId As Integer = GetComboValue(cmbStudent)
+        If DuplicateFeeExists(studentId, cmbFeeType.Text, 0) Then
+            MessageBox.Show(
+                "This student already has a '" & cmbFeeType.Text & "' record." & vbCrLf &
+                vbCrLf &
+                "To update the existing record, select it from the grid first, " &
+                "then click UPDATE.",
+                "Duplicate Fee Record",
+                MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Return
+        End If
+
         Try
-            Dim studentId As Integer = GetComboValue(cmbStudent)
-            Dim paidAmt   As String  = If(txtPaidAmount.Text.Trim() = "", "0", txtPaidAmount.Text)
-            Dim status    As String  = If(cmbStatus.Text = "", "Pending", cmbStatus.Text)
-            Dim paidDate  As String  = If(status = "Pending", "NULL",
-                                         "'" & dtpPaidDate.Value.ToString("yyyy-MM-dd") & "'")
+            Dim paidAmt  As String = If(txtPaidAmount.Text.Trim() = "", "0", txtPaidAmount.Text)
+            Dim status   As String = If(cmbStatus.Text = "", "Pending", cmbStatus.Text)
+            Dim paidDate As String = If(status = "Pending", "NULL",
+                                        "'" & dtpPaidDate.Value.ToString("yyyy-MM-dd") & "'")
 
             DatabaseHelper.ExecuteNonQuery(
-                "INSERT INTO fees (student_id, fee_type, amount, paid_amount, due_date, paid_date, status, remarks) VALUES (" &
+                "INSERT INTO fees (student_id, fee_type, amount, paid_amount, " &
+                "due_date, paid_date, status, remarks) VALUES (" &
                 studentId & ", '" & cmbFeeType.Text & "', " &
                 txtAmount.Text & ", " & paidAmt & ", '" &
                 dtpDueDate.Value.ToString("yyyy-MM-dd") & "', " &
-                paidDate & ", '" & status & "', '" & txtRemarks.Text.Trim() & "')")
+                paidDate & ", '" & status & "', '" &
+                txtRemarks.Text.Trim().Replace("'", "''") & "')")
 
             MessageBox.Show("Fee record saved successfully!", "Success",
                             MessageBoxButtons.OK, MessageBoxIcon.Information)
@@ -157,6 +203,26 @@
             Return
         End If
 
+        ' ★ DUPLICATE BLOCK for Update
+        ' (check if another record has same student + fee_type,
+        '  but ignore the record currently being edited)
+        If cmbFeeType.SelectedIndex >= 0 Then
+            ' Get student_id from the DB record being edited
+            Dim feeDt = DatabaseHelper.ExecuteQuery(
+                "SELECT student_id FROM fees WHERE fee_id=" & selectedFeeId)
+            If feeDt.Rows.Count > 0 Then
+                Dim sid = Convert.ToInt32(feeDt.Rows(0)("student_id"))
+                If DuplicateFeeExists(sid, cmbFeeType.Text, selectedFeeId) Then
+                    MessageBox.Show(
+                        "Another '" & cmbFeeType.Text & "' record already exists for this student." & vbCrLf &
+                        "Please choose a different Fee Type.",
+                        "Duplicate Fee Record",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    Return
+                End If
+            End If
+        End If
+
         Try
             Dim paidAmt  As String = If(txtPaidAmount.Text.Trim() = "", "0", txtPaidAmount.Text)
             Dim status   As String = If(cmbStatus.Text = "", "Pending", cmbStatus.Text)
@@ -165,13 +231,13 @@
 
             DatabaseHelper.ExecuteNonQuery(
                 "UPDATE fees SET " &
-                "fee_type='" & cmbFeeType.Text & "', " &
-                "amount=" & txtAmount.Text & ", " &
+                "fee_type='"  & cmbFeeType.Text.Replace("'", "''") & "', " &
+                "amount="     & txtAmount.Text & ", " &
                 "paid_amount=" & paidAmt & ", " &
-                "due_date='" & dtpDueDate.Value.ToString("yyyy-MM-dd") & "', " &
-                "paid_date=" & paidDate & ", " &
-                "status='" & status & "', " &
-                "remarks='" & txtRemarks.Text.Trim() & "' " &
+                "due_date='"  & dtpDueDate.Value.ToString("yyyy-MM-dd") & "', " &
+                "paid_date="  & paidDate & ", " &
+                "status='"    & status & "', " &
+                "remarks='"   & txtRemarks.Text.Trim().Replace("'", "''") & "' " &
                 "WHERE fee_id=" & selectedFeeId)
 
             MessageBox.Show("Fee record updated successfully!", "Success",
@@ -197,10 +263,10 @@
             Return
         End If
 
-        Dim confirm = MessageBox.Show("Are you sure you want to delete this fee record?" & vbNewLine &
-                                      "This action cannot be undone.",
-                                      "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning)
-        If confirm = DialogResult.No Then Return
+        If MessageBox.Show("Are you sure you want to delete this fee record?" & vbNewLine &
+                           "This action cannot be undone.",
+                           "Confirm Delete",
+                           MessageBoxButtons.YesNo, MessageBoxIcon.Warning) = DialogResult.No Then Return
 
         Try
             DatabaseHelper.ExecuteNonQuery("DELETE FROM fees WHERE fee_id=" & selectedFeeId)
@@ -231,7 +297,7 @@
         dgvFees.DataSource = dt
 
         If dgvFees.Columns.Count > 0 Then
-            dgvFees.Columns("fee_id").Visible = False
+            dgvFees.Columns("fee_id").Visible      = False
             dgvFees.Columns("FeeType").HeaderText  = "Fee Type"
             dgvFees.Columns("Amount").HeaderText   = "Total (₹)"
             dgvFees.Columns("Paid").HeaderText     = "Paid (₹)"
@@ -311,44 +377,56 @@
         LoadAllFees()
     End Sub
 
+    ' ══════════════════════════════════════════
+    '  GRID ROW CLICK
+    ' ══════════════════════════════════════════
+    Private Sub dgvFees_CellClick(sender As Object, e As DataGridViewCellEventArgs) _
+        Handles dgvFees.CellClick
 
-    Private Sub dgvFees_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvFees.CellClick
         If e.RowIndex < 0 Then Return
         Dim row = dgvFees.Rows(e.RowIndex)
         If Not dgvFees.Columns.Contains("fee_id") Then Return
         If row.Cells("fee_id").Value Is Nothing Then Return
 
-        selectedFeeId       = Convert.ToInt32(row.Cells("fee_id").Value)
-        cmbFeeType.Text     = row.Cells("FeeType").Value.ToString()
-        txtAmount.Text      = row.Cells("Amount").Value.ToString()
-        txtPaidAmount.Text  = row.Cells("Paid").Value.ToString()
-        cmbStatus.Text      = row.Cells("Status").Value.ToString()
+        selectedFeeId      = Convert.ToInt32(row.Cells("fee_id").Value)
+        cmbFeeType.Text    = row.Cells("FeeType").Value.ToString()
+        txtAmount.Text     = row.Cells("Amount").Value.ToString()
+        txtPaidAmount.Text = row.Cells("Paid").Value.ToString()
+        cmbStatus.Text     = row.Cells("Status").Value.ToString()
 
         If row.Cells("DueDate").Value IsNot DBNull.Value AndAlso
            row.Cells("DueDate").Value IsNot Nothing Then
             dtpDueDate.Value = Convert.ToDateTime(row.Cells("DueDate").Value)
         End If
 
-        lblStatusBar.Text = "Record selected — edit the fields and click Update, or click Delete to remove."
+        lblStatusBar.Text = "Record selected — Fee ID: " & selectedFeeId &
+                            "  |  Edit fields and click UPDATE, or DELETE to remove."
     End Sub
 
+    ' ══════════════════════════════════════════
+    '  CLEAR FORM
+    ' ══════════════════════════════════════════
     Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
         ClearForm()
     End Sub
 
     Private Sub ClearForm()
-        selectedFeeId = 0
+        selectedFeeId             = 0
         cmbCourse.SelectedIndex   = -1
         cmbStudent.SelectedIndex  = -1
         cmbFeeType.SelectedIndex  = -1
-        txtAmount.Text     = ""
-        txtPaidAmount.Text = ""
-        cmbStatus.Text     = "Pending"
-        dtpDueDate.Value   = DateTime.Now
-        dtpPaidDate.Value  = DateTime.Now
-        txtRemarks.Text    = ""
-        lblStatusBar.Text  = "Form cleared — ready to add a new fee record."
+        txtAmount.Text            = ""
+        txtPaidAmount.Text        = ""
+        cmbStatus.Text            = "Pending"
+        dtpDueDate.Value          = DateTime.Now
+        dtpPaidDate.Value         = DateTime.Now
+        txtRemarks.Text           = ""
+        lblStatusBar.Text         = "Form cleared — ready to add a new fee record."
     End Sub
+
+    ' ══════════════════════════════════════════
+    '  UPDATE DASHBOARD STATS
+    ' ══════════════════════════════════════════
     Private Sub UpdateDashboardStats()
         Try
             For Each frm As Form In Application.OpenForms
@@ -359,9 +437,14 @@
         Catch
         End Try
     End Sub
+
+    ' ══════════════════════════════════════════
+    '  TEXTBOX FOCUS HIGHLIGHT
+    ' ══════════════════════════════════════════
     Private Sub TextBox_Enter(sender As Object, e As EventArgs) _
         Handles txtAmount.Enter, txtPaidAmount.Enter, txtRemarks.Enter
-        CType(sender, TextBox).BackColor = System.Drawing.Color.FromArgb(235, 245, 255)
+        CType(sender, TextBox).BackColor =
+            System.Drawing.Color.FromArgb(235, 245, 255)
     End Sub
 
     Private Sub TextBox_Leave(sender As Object, e As EventArgs) _

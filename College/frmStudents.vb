@@ -33,7 +33,7 @@
                 btnDelete.Visible = False
                 btnClear.Visible  = False
                 LockForm(True)
-                SetStatus("Select a student from the list, or click 'Add New Student'.")
+                SetStatus("Select a student from the list, or click '+ ADD NEW STUDENT'.")
 
             Case FormMode.Adding
                 btnNew.Visible    = False
@@ -43,7 +43,7 @@
                 btnClear.Visible  = True
                 LockForm(False)
                 txtRollNo.Enabled = True
-                SetStatus("Fill in the student details and click SAVE.")
+                SetStatus("Fill in the student details and click SAVE STUDENT.")
 
             Case FormMode.Editing
                 btnNew.Visible    = False
@@ -53,7 +53,7 @@
                 btnClear.Visible  = True
                 LockForm(False)
                 txtRollNo.Enabled = False
-                SetStatus("Editing student record. Click UPDATE to save or DELETE to remove.")
+                SetStatus("Editing student record. Click UPDATE to save changes or DELETE to remove.")
         End Select
     End Sub
 
@@ -79,7 +79,8 @@
     '  DATA LOADING
     ' ══════════════════════════════════════════════════════════════
     Private Sub LoadCourses()
-        Dim dt = DatabaseHelper.ExecuteQuery("SELECT course_id, course_name FROM courses ORDER BY course_name")
+        Dim dt = DatabaseHelper.ExecuteQuery(
+            "SELECT course_id, course_name FROM courses ORDER BY course_name")
         cmbCourse.DataSource    = dt
         cmbCourse.DisplayMember = "course_name"
         cmbCourse.ValueMember   = "course_id"
@@ -93,27 +94,108 @@
                     "FROM students s LEFT JOIN courses c ON s.course_id = c.course_id " &
                     "ORDER BY s.student_id DESC"
         Dim dt = DatabaseHelper.ExecuteQuery(query)
+        BindGrid(dt)
+    End Sub
+
+    ' ── Central method to bind grid + fix headers ─────────────────
+    Private Sub BindGrid(dt As System.Data.DataTable)
         dgvStudents.DataSource = dt
 
         If dgvStudents.Columns.Count > 0 Then
-            dgvStudents.Columns("student_id").Visible     = False
-            dgvStudents.Columns("roll_no").HeaderText     = "Roll No"
-            dgvStudents.Columns("first_name").HeaderText  = "First Name"
-            dgvStudents.Columns("last_name").HeaderText   = "Last Name"
-            dgvStudents.Columns("email").HeaderText       = "Email"
-            dgvStudents.Columns("phone").HeaderText       = "Phone"
-            dgvStudents.Columns("gender").HeaderText      = "Gender"
-            dgvStudents.Columns("course_name").HeaderText = "Course"
-            dgvStudents.Columns("semester").HeaderText    = "Sem"
+            dgvStudents.Columns("student_id").Visible        = False
+            dgvStudents.Columns("roll_no").HeaderText        = "Roll No"
+            dgvStudents.Columns("first_name").HeaderText     = "First Name"
+            dgvStudents.Columns("last_name").HeaderText      = "Last Name"
+            dgvStudents.Columns("email").HeaderText          = "Email"
+            dgvStudents.Columns("phone").HeaderText          = "Phone"
+            dgvStudents.Columns("gender").HeaderText         = "Gender"
+            dgvStudents.Columns("course_name").HeaderText    = "Course"
+            dgvStudents.Columns("semester").HeaderText       = "Sem"
             dgvStudents.Columns("admission_year").HeaderText = "Adm. Year"
-            dgvStudents.Columns("dob").HeaderText         = "Date of Birth"
+            dgvStudents.Columns("dob").HeaderText            = "Date of Birth"
         End If
 
-        lblRecordCount.Text = "Total Records: " & dt.Rows.Count
+        UpdateRecordCount(dt.Rows.Count)
     End Sub
 
     ' ══════════════════════════════════════════════════════════════
-    '  BUTTONS
+    '  ★  LIVE SEARCH  — type karo → grid instantly filter ho
+    ' ══════════════════════════════════════════════════════════════
+    Private Sub txtSearch_TextChanged(sender As Object, e As EventArgs) _
+        Handles txtSearch.TextChanged
+
+        Dim keyword = txtSearch.Text.Trim()
+
+        If keyword = "" Then
+            LoadStudents()
+            SetStatus("Showing all student records.")
+            Return
+        End If
+
+        Dim t = EscSQL(keyword)
+
+        Dim query = "SELECT s.student_id, s.roll_no, s.first_name, s.last_name, " &
+                    "s.email, s.phone, s.gender, c.course_name, s.semester, " &
+                    "s.admission_year, s.dob " &
+                    "FROM students s LEFT JOIN courses c ON s.course_id = c.course_id " &
+                    "WHERE s.roll_no       LIKE '%" & t & "%' " &
+                    "OR s.first_name      LIKE '%" & t & "%' " &
+                    "OR s.last_name       LIKE '%" & t & "%' " &
+                    "OR s.email           LIKE '%" & t & "%' " &
+                    "OR s.phone           LIKE '%" & t & "%' " &
+                    "OR c.course_name     LIKE '%" & t & "%' " &
+                    "ORDER BY s.student_id DESC"
+
+        Dim dt = DatabaseHelper.ExecuteQuery(query)
+        BindGrid(dt)
+
+        If dt.Rows.Count = 0 Then
+            SetStatus("No results found for: """ & keyword & """")
+            lblRecordCount.ForeColor = System.Drawing.Color.FromArgb(192, 57, 43)
+        Else
+            SetStatus(dt.Rows.Count & " result(s) found for: """ & keyword & """")
+            lblRecordCount.ForeColor = System.Drawing.Color.FromArgb(39, 120, 60)
+        End If
+    End Sub
+
+    ' ── Search button (Enter key backup) ──────────────────────────
+    Private Sub btnSearch_Click(sender As Object, e As EventArgs) Handles btnSearch.Click
+        txtSearch_TextChanged(sender, e)
+    End Sub
+
+    ' ── Escape key clears search ──────────────────────────────────
+    Private Sub txtSearch_KeyDown(sender As Object, e As KeyEventArgs) Handles txtSearch.KeyDown
+        Select Case e.KeyCode
+            Case Keys.Enter  : txtSearch_TextChanged(sender, e)
+            Case Keys.Escape : txtSearch.Text = ""
+        End Select
+    End Sub
+
+    ' ── Show All ──────────────────────────────────────────────────
+    Private Sub btnShowAll_Click(sender As Object, e As EventArgs) Handles btnShowAll.Click
+        txtSearch.Text = ""          ' triggers TextChanged → LoadStudents()
+        txtSearch.Focus()
+    End Sub
+
+    ' ── Record count label ────────────────────────────────────────
+    Private Sub UpdateRecordCount(count As Integer)
+        Dim keyword = txtSearch.Text.Trim()
+        If keyword = "" Then
+            lblRecordCount.Text      = "Total Records: " & count
+            lblRecordCount.ForeColor = System.Drawing.Color.FromArgb(100, 110, 130)
+        Else
+            If count = 0 Then
+                lblRecordCount.Text      = "No results found"
+                lblRecordCount.ForeColor = System.Drawing.Color.FromArgb(192, 57, 43)
+            Else
+                lblRecordCount.Text      = count & " result(s) found"
+                lblRecordCount.ForeColor = System.Drawing.Color.FromArgb(39, 120, 60)
+            End If
+        End If
+    End Sub
+
+    ' ══════════════════════════════════════════════════════════════
+    '  BUTTONS — New / Save / Update / Delete / Clear
     ' ══════════════════════════════════════════════════════════════
 
     Private Sub btnNew_Click(sender As Object, e As EventArgs) Handles btnNew.Click
@@ -122,25 +204,26 @@
         txtRollNo.Focus()
     End Sub
 
-    ' ── SAVE ─────────────────────────────────────────────────────
+    ' ── SAVE ──────────────────────────────────────────────────────
     Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
         If Not ValidateForm(False) Then Return
 
         Try
             Dim roll = EscSQL(txtRollNo.Text.Trim())
 
-            ' ── Guard: check if Roll No already exists ──────────────
-            Dim userExists    = DatabaseHelper.ExecuteScalar("SELECT COUNT(*) FROM users    WHERE username='" & roll & "'")
-            Dim studentExists = DatabaseHelper.ExecuteScalar("SELECT COUNT(*) FROM students WHERE roll_no='"  & roll & "'")
+            Dim userExists    = DatabaseHelper.ExecuteScalar(
+                "SELECT COUNT(*) FROM users    WHERE username='" & roll & "'")
+            Dim studentExists = DatabaseHelper.ExecuteScalar(
+                "SELECT COUNT(*) FROM students WHERE roll_no='"  & roll & "'")
 
             If userExists > 0 OrElse studentExists > 0 Then
                 ShowWarning("Roll Number '" & roll & "' already exists." & vbCrLf &
-                            "Please use a different Roll Number, or select the existing student from the list to edit.")
+                            "Please use a different Roll Number, or select the " &
+                            "existing student from the list to edit.")
                 txtRollNo.Focus()
                 Return
             End If
 
-            ' ── Collect values ──────────────────────────────────────
             Dim fname    = EscSQL(txtFirstName.Text.Trim())
             Dim lname    = EscSQL(txtLastName.Text.Trim())
             Dim email    = EscSQL(txtEmail.Text.Trim())
@@ -148,28 +231,29 @@
             Dim gender   = EscSQL(cmbGender.Text)
             Dim addr     = EscSQL(txtAddress.Text.Trim())
             Dim dob      = dtpDOB.Value.ToString("yyyy-MM-dd")
-            Dim admYear  = If(txtAdmissionYear.Text.Trim() = "", CStr(DateTime.Now.Year), txtAdmissionYear.Text.Trim())
+            Dim admYear  = If(txtAdmissionYear.Text.Trim() = "",
+                              CStr(DateTime.Now.Year), txtAdmissionYear.Text.Trim())
             Dim sem      = If(cmbSemester.Text = "", "1", cmbSemester.Text)
             Dim courseId = CInt(cmbCourse.SelectedValue)
 
-            ' ── Insert user account ─────────────────────────────────
             Dim defaultPass = GetMD5(txtRollNo.Text.Trim())
             DatabaseHelper.ExecuteNonQuery(
-                "INSERT INTO users (username, password, role) VALUES ('" & roll & "', '" & defaultPass & "', 'student')")
+                "INSERT INTO users (username, password, role) VALUES ('" &
+                roll & "', '" & defaultPass & "', 'student')")
             Dim userId = DatabaseHelper.GetLastInsertId()
 
-            ' ── Insert student (rollback user if this fails) ────────
             Try
                 DatabaseHelper.ExecuteNonQuery(
-                    "INSERT INTO students (roll_no, first_name, last_name, email, phone, gender, " &
-                    "course_id, semester, admission_year, dob, address, user_id) VALUES ('" &
-                    roll & "', '" & fname & "', '" & lname & "', '" &
+                    "INSERT INTO students (roll_no, first_name, last_name, email, phone, " &
+                    "gender, course_id, semester, admission_year, dob, address, user_id) " &
+                    "VALUES ('" & roll & "', '" & fname & "', '" & lname & "', '" &
                     email & "', '" & phone & "', '" & gender & "', " &
                     courseId & ", " & sem & ", " & admYear & ", '" &
                     dob & "', '" & addr & "', " & userId & ")")
             Catch exInner As Exception
-                ' Clean up orphan user record
-                If userId > 0 Then DatabaseHelper.ExecuteNonQuery("DELETE FROM users WHERE user_id=" & userId)
+                If userId > 0 Then
+                    DatabaseHelper.ExecuteNonQuery("DELETE FROM users WHERE user_id=" & userId)
+                End If
                 Throw
             End Try
 
@@ -184,13 +268,14 @@
         End Try
     End Sub
 
-    ' ── UPDATE ───────────────────────────────────────────────────
+    ' ── UPDATE ────────────────────────────────────────────────────
     Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
         If selectedStudentId = 0 Then Return
         If Not ValidateForm(True) Then Return
 
         If MessageBox.Show("Save changes to this student record?", "Confirm Update",
-                           MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.No Then Return
+                           MessageBoxButtons.YesNo,
+                           MessageBoxIcon.Question) = DialogResult.No Then Return
 
         Try
             Dim fname    = EscSQL(txtFirstName.Text.Trim())
@@ -200,7 +285,8 @@
             Dim gender   = EscSQL(cmbGender.Text)
             Dim addr     = EscSQL(txtAddress.Text.Trim())
             Dim dob      = dtpDOB.Value.ToString("yyyy-MM-dd")
-            Dim admYear  = If(txtAdmissionYear.Text.Trim() = "", CStr(DateTime.Now.Year), txtAdmissionYear.Text.Trim())
+            Dim admYear  = If(txtAdmissionYear.Text.Trim() = "",
+                              CStr(DateTime.Now.Year), txtAdmissionYear.Text.Trim())
             Dim sem      = If(cmbSemester.Text = "", "1", cmbSemester.Text)
             Dim courseId = CInt(cmbCourse.SelectedValue)
 
@@ -222,28 +308,37 @@
         End Try
     End Sub
 
-    ' ── DELETE ───────────────────────────────────────────────────
+    ' ── DELETE ────────────────────────────────────────────────────
     Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
         If selectedStudentId = 0 Then Return
 
         If MessageBox.Show(
             "Are you sure you want to delete this student?" & vbCrLf &
             "All attendance, result and fee records will also be removed.",
-            "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) = DialogResult.No Then Return
+            "Confirm Delete",
+            MessageBoxButtons.YesNo, MessageBoxIcon.Warning) = DialogResult.No Then Return
 
         Try
-            DatabaseHelper.ExecuteNonQuery("DELETE FROM attendance WHERE student_id=" & selectedStudentId)
-            DatabaseHelper.ExecuteNonQuery("DELETE FROM results   WHERE student_id=" & selectedStudentId)
-            DatabaseHelper.ExecuteNonQuery("DELETE FROM fees      WHERE student_id=" & selectedStudentId)
+            DatabaseHelper.ExecuteNonQuery(
+                "DELETE FROM attendance WHERE student_id=" & selectedStudentId)
+            DatabaseHelper.ExecuteNonQuery(
+                "DELETE FROM results    WHERE student_id=" & selectedStudentId)
+            DatabaseHelper.ExecuteNonQuery(
+                "DELETE FROM fees       WHERE student_id=" & selectedStudentId)
 
-            Dim userDt = DatabaseHelper.ExecuteQuery("SELECT user_id FROM students WHERE student_id=" & selectedStudentId)
+            Dim userDt = DatabaseHelper.ExecuteQuery(
+                "SELECT user_id FROM students WHERE student_id=" & selectedStudentId)
             Dim userId As Integer = 0
-            If userDt.Rows.Count > 0 AndAlso userDt.Rows(0)("user_id") IsNot DBNull.Value Then
+            If userDt.Rows.Count > 0 AndAlso
+               userDt.Rows(0)("user_id") IsNot DBNull.Value Then
                 userId = Convert.ToInt32(userDt.Rows(0)("user_id"))
             End If
 
-            DatabaseHelper.ExecuteNonQuery("DELETE FROM students WHERE student_id=" & selectedStudentId)
-            If userId > 0 Then DatabaseHelper.ExecuteNonQuery("DELETE FROM users WHERE user_id=" & userId)
+            DatabaseHelper.ExecuteNonQuery(
+                "DELETE FROM students WHERE student_id=" & selectedStudentId)
+            If userId > 0 Then
+                DatabaseHelper.ExecuteNonQuery("DELETE FROM users WHERE user_id=" & userId)
+            End If
 
             ShowSuccess("Student record deleted successfully.")
             ClearForm()
@@ -255,58 +350,25 @@
         End Try
     End Sub
 
-    ' ── CANCEL / CLEAR ───────────────────────────────────────────
+    ' ── CANCEL / CLEAR ────────────────────────────────────────────
     Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
         ClearForm()
         SetMode(FormMode.Idle)
     End Sub
 
-    ' ── SEARCH ───────────────────────────────────────────────────
-    Private Sub btnSearch_Click(sender As Object, e As EventArgs) Handles btnSearch.Click
-        If txtSearch.Text.Trim() = "" Then
-            LoadStudents()
-            Return
-        End If
-
-        Dim t = EscSQL(txtSearch.Text.Trim())
-        Dim query = "SELECT s.student_id, s.roll_no, s.first_name, s.last_name, " &
-                    "s.email, s.phone, s.gender, c.course_name, s.semester, " &
-                    "s.admission_year, s.dob " &
-                    "FROM students s LEFT JOIN courses c ON s.course_id = c.course_id " &
-                    "WHERE s.roll_no    LIKE '%" & t & "%' " &
-                    "OR s.first_name   LIKE '%" & t & "%' " &
-                    "OR s.last_name    LIKE '%" & t & "%' " &
-                    "OR s.email        LIKE '%" & t & "%' " &
-                    "OR s.phone        LIKE '%" & t & "%'"
-
-        Dim dt = DatabaseHelper.ExecuteQuery(query)
-        dgvStudents.DataSource = dt
-        If dgvStudents.Columns.Count > 0 Then dgvStudents.Columns("student_id").Visible = False
-
-        lblRecordCount.Text = "Records Found: " & dt.Rows.Count
-        SetStatus("Search results for: '" & txtSearch.Text.Trim() & "'")
-    End Sub
-
-    Private Sub btnShowAll_Click(sender As Object, e As EventArgs) Handles btnShowAll.Click
-        txtSearch.Text = ""
-        LoadStudents()
-        SetStatus("Showing all student records.")
-    End Sub
-
-    Private Sub txtSearch_KeyDown(sender As Object, e As KeyEventArgs) Handles txtSearch.KeyDown
-        If e.KeyCode = Keys.Enter Then btnSearch_Click(Nothing, Nothing)
-    End Sub
-
     ' ══════════════════════════════════════════════════════════════
     '  GRID ROW CLICK
     ' ══════════════════════════════════════════════════════════════
-    Private Sub dgvStudents_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvStudents.CellClick
+    Private Sub dgvStudents_CellClick(sender As Object, e As DataGridViewCellEventArgs) _
+        Handles dgvStudents.CellClick
+
         If e.RowIndex < 0 Then Return
 
         Dim row = dgvStudents.Rows(e.RowIndex)
         selectedStudentId = Convert.ToInt32(row.Cells("student_id").Value)
 
-        Dim dt = DatabaseHelper.ExecuteQuery("SELECT * FROM students WHERE student_id=" & selectedStudentId)
+        Dim dt = DatabaseHelper.ExecuteQuery(
+            "SELECT * FROM students WHERE student_id=" & selectedStudentId)
         If dt.Rows.Count = 0 Then Return
         Dim r = dt.Rows(0)
 
@@ -331,16 +393,34 @@
     End Sub
 
     ' ══════════════════════════════════════════════════════════════
+    '  TEXTBOX FOCUS HIGHLIGHT
+    ' ══════════════════════════════════════════════════════════════
+    Private Sub TextBox_Enter(sender As Object, e As EventArgs) _
+        Handles txtRollNo.Enter, txtFirstName.Enter, txtLastName.Enter,
+                txtEmail.Enter, txtPhone.Enter, txtAdmissionYear.Enter,
+                txtAddress.Enter
+        CType(sender, TextBox).BackColor =
+            System.Drawing.Color.FromArgb(235, 245, 255)
+    End Sub
+
+    Private Sub TextBox_Leave(sender As Object, e As EventArgs) _
+        Handles txtRollNo.Leave, txtFirstName.Leave, txtLastName.Leave,
+                txtEmail.Leave, txtPhone.Leave, txtAdmissionYear.Leave,
+                txtAddress.Leave
+        CType(sender, TextBox).BackColor = System.Drawing.Color.White
+    End Sub
+
+    ' ══════════════════════════════════════════════════════════════
     '  HELPERS
     ' ══════════════════════════════════════════════════════════════
-
     Private Function EscSQL(input As String) As String
         If input Is Nothing Then Return ""
         Return input.Replace("'", "''")
     End Function
 
     Private Function SafeStr(row As System.Data.DataRow, col As String) As String
-        If row.Table.Columns.Contains(col) AndAlso row(col) IsNot DBNull.Value Then
+        If row.Table.Columns.Contains(col) AndAlso
+           row(col) IsNot DBNull.Value Then
             Return row(col).ToString()
         End If
         Return ""

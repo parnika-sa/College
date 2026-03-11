@@ -3,10 +3,59 @@ Imports System.Text
 
 Public Class Form1
 
+    ' ══════════════════════════════════════════
+    '  ANIMATION TIMERS
+    ' ══════════════════════════════════════════
+    Private tmrFade As New Timer()
+    Private tmrSlide As New Timer()
+    Private _opacity As Double = 0
+    Private _slideX As Integer = 80   ' pnlRight starts 80px to the right
+
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        ' ── Database check ──
         If Not DatabaseHelper.TestConnection() Then
-            MessageBox.Show("Database connect nahi ho raha! MySQL chalu hai?",
+            MessageBox.Show("Unable to connect to the database. Please ensure MySQL is running.",
                            "Connection Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End If
+
+        ' ── Start animations ──
+        StartAnimations()
+    End Sub
+
+    ' ══════════════════════════════════════════
+    '  ANIMATIONS
+    ' ══════════════════════════════════════════
+    Private Sub StartAnimations()
+        ' Form Fade-In
+        Me.Opacity = 0
+        _opacity = 0
+        tmrFade.Interval = 15
+        AddHandler tmrFade.Tick, AddressOf FadeIn
+        tmrFade.Start()
+
+        ' Right panel slide-in from right
+        pnlRight.Left = 220 + _slideX   ' shifted right initially
+        tmrSlide.Interval = 10
+        AddHandler tmrSlide.Tick, AddressOf SlideIn
+        tmrSlide.Start()
+    End Sub
+
+    Private Sub FadeIn(sender As Object, e As EventArgs)
+        _opacity += 0.05
+        If _opacity >= 1 Then
+            _opacity = 1
+            tmrFade.Stop()
+        End If
+        Me.Opacity = _opacity
+    End Sub
+
+    Private Sub SlideIn(sender As Object, e As EventArgs)
+        Dim targetX As Integer = 220
+        If pnlRight.Left > targetX Then
+            pnlRight.Left -= 5
+        Else
+            pnlRight.Left = targetX
+            tmrSlide.Stop()
         End If
     End Sub
 
@@ -21,21 +70,43 @@ Public Class Form1
         btnLogin.BackColor = Color.FromArgb(31, 73, 125)
     End Sub
 
+    ' TextBox focus highlight
+    Private Sub txtUsername_Enter(sender As Object, e As EventArgs) Handles txtUsername.Enter
+        txtUsername.BackColor = Color.White
+    End Sub
+    Private Sub txtUsername_Leave(sender As Object, e As EventArgs) Handles txtUsername.Leave
+        txtUsername.BackColor = Color.FromArgb(245, 247, 250)
+    End Sub
+    Private Sub txtPassword_Enter(sender As Object, e As EventArgs) Handles txtPassword.Enter
+        txtPassword.BackColor = Color.White
+    End Sub
+    Private Sub txtPassword_Leave(sender As Object, e As EventArgs) Handles txtPassword.Leave
+        txtPassword.BackColor = Color.FromArgb(245, 247, 250)
+    End Sub
+
     ' ══════════════════════════════════════════
     '  LOGIN
     ' ══════════════════════════════════════════
     Private Sub btnLogin_Click(sender As Object, e As EventArgs) Handles btnLogin.Click
+        ' ── Validation ──
         If txtUsername.Text.Trim() = "" Then
-            MessageBox.Show("Username daalo!", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            MessageBox.Show("Please enter your username.", "Validation Error",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtUsername.Focus()
             Return
         End If
 
         If txtPassword.Text.Trim() = "" Then
-            MessageBox.Show("Password daalo!", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            MessageBox.Show("Please enter your password.", "Validation Error",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtPassword.Focus()
             Return
         End If
+
+        ' ── Button loading state ──
+        btnLogin.Text = "Signing in..."
+        btnLogin.Enabled = False
+        Application.DoEvents()
 
         Try
             Dim encPassword As String = GetMD5(txtPassword.Text.Trim())
@@ -81,15 +152,19 @@ Public Class Form1
                         Me.Hide()
                 End Select
             Else
-                MessageBox.Show("Username ya Password galat hai!", "Login Failed",
+                MessageBox.Show("Invalid username or password. Please try again.", "Login Failed",
                                MessageBoxButtons.OK, MessageBoxIcon.Error)
                 txtPassword.Clear()
                 txtPassword.Focus()
             End If
 
         Catch ex As Exception
-            MessageBox.Show("Login error: " & ex.Message, "Error",
+            MessageBox.Show("An error occurred during login: " & ex.Message, "Error",
                            MessageBoxButtons.OK, MessageBoxIcon.Error)
+        Finally
+            ' ── Restore button ──
+            btnLogin.Text = "SIGN IN  →"
+            btnLogin.Enabled = True
         End Try
     End Sub
 

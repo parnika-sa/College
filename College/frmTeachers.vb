@@ -2,6 +2,9 @@
 
     Dim selectedTeacherId As Integer = 0
 
+    ' ══════════════════════════════════════════
+    '  FORM LOAD
+    ' ══════════════════════════════════════════
     Private Sub frmTeachers_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         LoadDepartments()
         LoadTeachers()
@@ -9,7 +12,7 @@
     End Sub
 
     ' ══════════════════════════════════════════
-    '  MODE SWITCHER  (view / add / edit)
+    '  MODE SWITCHER
     ' ══════════════════════════════════════════
     Private Sub SetMode(mode As String)
         Select Case mode
@@ -47,7 +50,8 @@
     '  DATA LOADING
     ' ══════════════════════════════════════════
     Private Sub LoadDepartments()
-        Dim dt = DatabaseHelper.ExecuteQuery("SELECT dept_id, dept_name FROM departments ORDER BY dept_name")
+        Dim dt = DatabaseHelper.ExecuteQuery(
+            "SELECT dept_id, dept_name FROM departments ORDER BY dept_name")
         cmbDept.DataSource    = dt
         cmbDept.DisplayMember = "dept_name"
         cmbDept.ValueMember   = "dept_id"
@@ -60,25 +64,100 @@
                     "FROM teachers t LEFT JOIN departments d ON t.dept_id = d.dept_id " &
                     "ORDER BY t.teacher_id DESC"
         Dim dt = DatabaseHelper.ExecuteQuery(query)
+        BindGrid(dt)
+    End Sub
+
+    Private Sub BindGrid(dt As System.Data.DataTable)
         dgvTeachers.DataSource = dt
         ApplyGridHeaders()
-        lblRecordCount.Text = "Total Records: " & dgvTeachers.Rows.Count
+        UpdateRecordCount(dt.Rows.Count)
     End Sub
 
     Private Sub ApplyGridHeaders()
         If dgvTeachers.Columns.Count = 0 Then Return
-        dgvTeachers.Columns("teacher_id").Visible  = False
-        dgvTeachers.Columns("emp_code").HeaderText    = "Emp Code"
-        dgvTeachers.Columns("first_name").HeaderText  = "First Name"
-        dgvTeachers.Columns("last_name").HeaderText   = "Last Name"
-        dgvTeachers.Columns("email").HeaderText       = "Email"
-        dgvTeachers.Columns("phone").HeaderText       = "Phone"
-        dgvTeachers.Columns("dept_name").HeaderText   = "Department"
+        dgvTeachers.Columns("teacher_id").Visible      = False
+        dgvTeachers.Columns("emp_code").HeaderText     = "Emp Code"
+        dgvTeachers.Columns("first_name").HeaderText   = "First Name"
+        dgvTeachers.Columns("last_name").HeaderText    = "Last Name"
+        dgvTeachers.Columns("email").HeaderText        = "Email"
+        dgvTeachers.Columns("phone").HeaderText        = "Phone"
+        dgvTeachers.Columns("dept_name").HeaderText    = "Department"
         dgvTeachers.Columns("joining_date").HeaderText = "Joining Date"
     End Sub
 
     ' ══════════════════════════════════════════
-    '  BUTTON EVENTS
+    '  ★ LIVE SEARCH
+    ' ══════════════════════════════════════════
+    Private Sub txtSearch_TextChanged(sender As Object, e As EventArgs) _
+        Handles txtSearch.TextChanged
+
+        Dim keyword = txtSearch.Text.Trim()
+
+        If keyword = "" Then
+            LoadTeachers()
+            lblStatus.Text = "Showing all teacher records."
+            Return
+        End If
+
+        Dim t = keyword.Replace("'", "''")
+
+        Dim query = "SELECT t.teacher_id, t.emp_code, t.first_name, t.last_name, " &
+                    "t.email, t.phone, d.dept_name, t.joining_date " &
+                    "FROM teachers t LEFT JOIN departments d ON t.dept_id = d.dept_id " &
+                    "WHERE t.emp_code   LIKE '%" & t & "%' " &
+                    "OR t.first_name   LIKE '%" & t & "%' " &
+                    "OR t.last_name    LIKE '%" & t & "%' " &
+                    "OR t.email        LIKE '%" & t & "%' " &
+                    "OR t.phone        LIKE '%" & t & "%' " &
+                    "OR d.dept_name    LIKE '%" & t & "%' " &
+                    "ORDER BY t.teacher_id DESC"
+
+        Dim dt = DatabaseHelper.ExecuteQuery(query)
+        BindGrid(dt)
+
+        If dt.Rows.Count = 0 Then
+            lblStatus.Text           = "No results found for: """ & keyword & """"
+            lblRecordCount.ForeColor = System.Drawing.Color.FromArgb(192, 57, 43)
+        Else
+            lblStatus.Text           = dt.Rows.Count & " result(s) found for: """ & keyword & """"
+            lblRecordCount.ForeColor = System.Drawing.Color.FromArgb(39, 120, 60)
+        End If
+    End Sub
+
+    Private Sub btnSearch_Click(sender As Object, e As EventArgs) Handles btnSearch.Click
+        txtSearch_TextChanged(sender, e)
+    End Sub
+
+    Private Sub txtSearch_KeyDown(sender As Object, e As KeyEventArgs) Handles txtSearch.KeyDown
+        Select Case e.KeyCode
+            Case Keys.Enter  : txtSearch_TextChanged(sender, e)
+            Case Keys.Escape : txtSearch.Text = ""
+        End Select
+    End Sub
+
+    Private Sub btnShowAll_Click(sender As Object, e As EventArgs) Handles btnShowAll.Click
+        txtSearch.Text = ""
+        txtSearch.Focus()
+    End Sub
+
+    Private Sub UpdateRecordCount(count As Integer)
+        Dim keyword = txtSearch.Text.Trim()
+        If keyword = "" Then
+            lblRecordCount.Text      = "Total Records: " & count
+            lblRecordCount.ForeColor = System.Drawing.Color.FromArgb(100, 110, 130)
+        Else
+            If count = 0 Then
+                lblRecordCount.Text      = "No results found"
+                lblRecordCount.ForeColor = System.Drawing.Color.FromArgb(192, 57, 43)
+            Else
+                lblRecordCount.Text      = count & " result(s) found"
+                lblRecordCount.ForeColor = System.Drawing.Color.FromArgb(39, 120, 60)
+            End If
+        End If
+    End Sub
+
+    ' ══════════════════════════════════════════
+    '  BUTTONS
     ' ══════════════════════════════════════════
     Private Sub btnNew_Click(sender As Object, e As EventArgs) Handles btnNew.Click
         SetMode("add")
@@ -88,23 +167,23 @@
         If Not ValidateForm() Then Return
 
         Try
-            ' Create user account with default password = emp code
             Dim defaultPass As String = GetMD5(txtEmpCode.Text.Trim())
-            Dim userQuery As String = "INSERT INTO users (username, password, role) VALUES ('" &
-                                      txtEmpCode.Text.Trim() & "', '" & defaultPass & "', 'teacher')"
-            DatabaseHelper.ExecuteNonQuery(userQuery)
+            DatabaseHelper.ExecuteNonQuery(
+                "INSERT INTO users (username, password, role) VALUES ('" &
+                txtEmpCode.Text.Trim() & "', '" & defaultPass & "', 'teacher')")
             Dim userId As Integer = DatabaseHelper.GetLastInsertId()
 
-            Dim query As String = "INSERT INTO teachers (emp_code, first_name, last_name, email, phone, dept_id, joining_date, user_id) VALUES ('" &
-                                  txtEmpCode.Text.Trim() & "', '" &
-                                  txtFirstName.Text.Trim() & "', '" &
-                                  txtLastName.Text.Trim() & "', '" &
-                                  txtEmail.Text.Trim() & "', '" &
-                                  txtPhone.Text.Trim() & "', " &
-                                  cmbDept.SelectedValue & ", '" &
-                                  dtpJoining.Value.ToString("yyyy-MM-dd") & "', " & userId & ")"
+            DatabaseHelper.ExecuteNonQuery(
+                "INSERT INTO teachers (emp_code, first_name, last_name, email, phone, " &
+                "dept_id, joining_date, user_id) VALUES ('" &
+                txtEmpCode.Text.Trim() & "', '" &
+                txtFirstName.Text.Trim() & "', '" &
+                txtLastName.Text.Trim() & "', '" &
+                txtEmail.Text.Trim() & "', '" &
+                txtPhone.Text.Trim() & "', " &
+                cmbDept.SelectedValue & ", '" &
+                dtpJoining.Value.ToString("yyyy-MM-dd") & "', " & userId & ")")
 
-            DatabaseHelper.ExecuteNonQuery(query)
             MessageBox.Show("Teacher saved successfully!" & vbNewLine &
                             "Default login password: " & txtEmpCode.Text.Trim(),
                             "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
@@ -126,16 +205,16 @@
         If Not ValidateForm() Then Return
 
         Try
-            Dim query As String = "UPDATE teachers SET " &
-                                  "first_name='" & txtFirstName.Text.Trim() & "', " &
-                                  "last_name='"  & txtLastName.Text.Trim()  & "', " &
-                                  "email='"      & txtEmail.Text.Trim()     & "', " &
-                                  "phone='"      & txtPhone.Text.Trim()     & "', " &
-                                  "dept_id="     & cmbDept.SelectedValue   & ", " &
-                                  "joining_date='" & dtpJoining.Value.ToString("yyyy-MM-dd") & "'" &
-                                  " WHERE teacher_id=" & selectedTeacherId
+            DatabaseHelper.ExecuteNonQuery(
+                "UPDATE teachers SET " &
+                "first_name='"   & txtFirstName.Text.Trim() & "', " &
+                "last_name='"    & txtLastName.Text.Trim()  & "', " &
+                "email='"        & txtEmail.Text.Trim()     & "', " &
+                "phone='"        & txtPhone.Text.Trim()     & "', " &
+                "dept_id="       & cmbDept.SelectedValue    & ", " &
+                "joining_date='" & dtpJoining.Value.ToString("yyyy-MM-dd") & "' " &
+                "WHERE teacher_id=" & selectedTeacherId)
 
-            DatabaseHelper.ExecuteNonQuery(query)
             MessageBox.Show("Teacher updated successfully!", "Success",
                             MessageBoxButtons.OK, MessageBoxIcon.Information)
             LoadTeachers()
@@ -154,20 +233,22 @@
             Return
         End If
 
-        Dim confirm = MessageBox.Show("Are you sure you want to delete this teacher?" & vbNewLine &
-                                      "This action cannot be undone.",
-                                      "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning)
-        If confirm = DialogResult.No Then Return
+        If MessageBox.Show("Are you sure you want to delete this teacher?" & vbNewLine &
+                           "This action cannot be undone.",
+                           "Confirm Delete",
+                           MessageBoxButtons.YesNo, MessageBoxIcon.Warning) = DialogResult.No Then Return
 
         Try
             Dim userDt = DatabaseHelper.ExecuteQuery(
                 "SELECT user_id FROM teachers WHERE teacher_id=" & selectedTeacherId)
             Dim userId As Integer = 0
-            If userDt.Rows.Count > 0 AndAlso userDt.Rows(0)("user_id") IsNot DBNull.Value Then
+            If userDt.Rows.Count > 0 AndAlso
+               userDt.Rows(0)("user_id") IsNot DBNull.Value Then
                 userId = Convert.ToInt32(userDt.Rows(0)("user_id"))
             End If
 
-            DatabaseHelper.ExecuteNonQuery("DELETE FROM teachers WHERE teacher_id=" & selectedTeacherId)
+            DatabaseHelper.ExecuteNonQuery(
+                "DELETE FROM teachers WHERE teacher_id=" & selectedTeacherId)
             If userId > 0 Then
                 DatabaseHelper.ExecuteNonQuery("DELETE FROM users WHERE user_id=" & userId)
             End If
@@ -188,40 +269,11 @@
     End Sub
 
     ' ══════════════════════════════════════════
-    '  SEARCH
+    '  GRID ROW CLICK
     ' ══════════════════════════════════════════
-    Private Sub btnSearch_Click(sender As Object, e As EventArgs) Handles btnSearch.Click
-        If txtSearch.Text.Trim() = "" Then
-            LoadTeachers()
-            Return
-        End If
+    Private Sub dgvTeachers_CellClick(sender As Object, e As DataGridViewCellEventArgs) _
+        Handles dgvTeachers.CellClick
 
-        Dim query = "SELECT t.teacher_id, t.emp_code, t.first_name, t.last_name, " &
-                    "t.email, t.phone, d.dept_name, t.joining_date " &
-                    "FROM teachers t LEFT JOIN departments d ON t.dept_id = d.dept_id " &
-                    "WHERE t.emp_code LIKE '%" & txtSearch.Text & "%' " &
-                    "OR t.first_name LIKE '%" & txtSearch.Text & "%' " &
-                    "OR t.last_name  LIKE '%" & txtSearch.Text & "%' " &
-                    "OR d.dept_name  LIKE '%" & txtSearch.Text & "%'"
-        Dim dt = DatabaseHelper.ExecuteQuery(query)
-        dgvTeachers.DataSource = dt
-        ApplyGridHeaders()
-        lblRecordCount.Text = "Results: " & dgvTeachers.Rows.Count
-    End Sub
-
-    Private Sub btnShowAll_Click(sender As Object, e As EventArgs) Handles btnShowAll.Click
-        txtSearch.Text = ""
-        LoadTeachers()
-    End Sub
-
-    Private Sub txtSearch_KeyDown(sender As Object, e As KeyEventArgs) Handles txtSearch.KeyDown
-        If e.KeyCode = Keys.Enter Then btnSearch_Click(sender, e)
-    End Sub
-
-    ' ══════════════════════════════════════════
-    '  GRID ROW CLICK — POPULATE FORM
-    ' ══════════════════════════════════════════
-    Private Sub dgvTeachers_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvTeachers.CellClick
         If e.RowIndex < 0 Then Return
         Dim row = dgvTeachers.Rows(e.RowIndex)
 
@@ -229,14 +281,15 @@
         txtEmpCode.Text    = row.Cells("emp_code").Value.ToString()
         txtFirstName.Text  = row.Cells("first_name").Value.ToString()
         txtLastName.Text   = row.Cells("last_name").Value.ToString()
-        txtEmail.Text      = If(row.Cells("email").Value IsNot DBNull.Value, row.Cells("email").Value.ToString(), "")
-        txtPhone.Text      = If(row.Cells("phone").Value IsNot DBNull.Value, row.Cells("phone").Value.ToString(), "")
+        txtEmail.Text      = If(row.Cells("email").Value IsNot DBNull.Value,
+                                row.Cells("email").Value.ToString(), "")
+        txtPhone.Text      = If(row.Cells("phone").Value IsNot DBNull.Value,
+                                row.Cells("phone").Value.ToString(), "")
 
-        ' Set department dropdown
         If row.Cells("dept_name").Value IsNot DBNull.Value Then
             Dim deptDt = DatabaseHelper.ExecuteQuery(
                 "SELECT dept_id FROM departments WHERE dept_name='" &
-                row.Cells("dept_name").Value.ToString() & "'")
+                row.Cells("dept_name").Value.ToString().Replace("'", "''") & "'")
             If deptDt.Rows.Count > 0 Then
                 cmbDept.SelectedValue = Convert.ToInt32(deptDt.Rows(0)("dept_id"))
             End If
@@ -269,14 +322,14 @@
     End Function
 
     Private Sub ClearForm()
-        selectedTeacherId = 0
-        txtEmpCode.Text   = ""
-        txtFirstName.Text = ""
-        txtLastName.Text  = ""
-        txtEmail.Text     = ""
-        txtPhone.Text     = ""
+        selectedTeacherId     = 0
+        txtEmpCode.Text       = ""
+        txtFirstName.Text     = ""
+        txtLastName.Text      = ""
+        txtEmail.Text         = ""
+        txtPhone.Text         = ""
         cmbDept.SelectedIndex = -1
-        dtpJoining.Value  = DateTime.Now
+        dtpJoining.Value      = DateTime.Now
     End Sub
 
     Private Function GetMD5(input As String) As String
@@ -292,7 +345,8 @@
     Private Sub TextBox_Enter(sender As Object, e As EventArgs) _
         Handles txtEmpCode.Enter, txtFirstName.Enter, txtLastName.Enter,
                 txtEmail.Enter, txtPhone.Enter
-        CType(sender, TextBox).BackColor = System.Drawing.Color.FromArgb(235, 245, 255)
+        CType(sender, TextBox).BackColor =
+            System.Drawing.Color.FromArgb(235, 245, 255)
     End Sub
 
     Private Sub TextBox_Leave(sender As Object, e As EventArgs) _
