@@ -1,8 +1,9 @@
 <h1 align="center">🎓 College ERP System</h1>
 
 <p align="center">
-  A complete <strong>Enterprise Resource Planning (ERP)</strong> system for colleges, built with <strong>VB.NET WinForms</strong> and <strong>MySQL</strong>.
-  <br/>
+  A complete <strong>Enterprise Resource Planning (ERP)</strong> system for colleges,<br/>
+  built with <strong>VB.NET WinForms</strong>, <strong>MySQL</strong>, and an integrated <strong>AI Assistant</strong> powered by Groq LLaMA.
+  <br/><br/>
   Manage students, teachers, attendance, results, and fees — all in one place.
 </p>
 
@@ -10,7 +11,8 @@
   <img src="https://img.shields.io/badge/Platform-Windows-blue?style=flat-square&logo=windows" />
   <img src="https://img.shields.io/badge/Language-VB.NET-purple?style=flat-square&logo=dotnet" />
   <img src="https://img.shields.io/badge/Database-MySQL-orange?style=flat-square&logo=mysql" />
-  <img src="https://img.shields.io/badge/IDE-Visual%20Studio-5C2D91?style=flat-square&logo=visualstudio" />
+  <img src="https://img.shields.io/badge/AI-Groq%20LLaMA%203.1-green?style=flat-square&logo=meta" />
+  <img src="https://img.shields.io/badge/IDE-Visual%20Studio%202022-5C2D91?style=flat-square&logo=visualstudio" />
   <img src="https://img.shields.io/badge/Status-Active-brightgreen?style=flat-square" />
 </p>
 
@@ -20,12 +22,13 @@
 
 - [About the Project](#about-the-project)
 - [Features](#features)
+- [AI Assistant](#ai-assistant)
 - [Modules](#modules)
 - [Tech Stack](#tech-stack)
 - [Database Schema](#database-schema)
 - [Getting Started](#getting-started)
 - [Project Structure](#project-structure)
-- [Screenshots](#screenshots)
+- [UI Design](#ui-design)
 - [Author](#author)
 
 ---
@@ -34,38 +37,95 @@
 
 **College ERP System** is a desktop-based management system developed as a college project using **Visual Basic .NET** and **MySQL**. It provides a role-based interface for **Admins**, **Teachers**, and **Students** to manage all core college operations efficiently.
 
-The system features a modern, professional UI with a consistent dark-navy design theme across all modules.
+What makes this project stand out is the built-in **AI-powered ERP Assistant** — a chatbot that can answer questions about students, attendance, fees, and results in natural language, powered by **Groq's LLaMA 3.1** model via a Python Flask backend.
 
 ---
 
 ## ✨ Features
 
-- 🔐 **Role-based Login** — Admin, Teacher, and Student portals
-- 👥 **Student Management** — Add, update, delete student records with course enrollment
+- 🔐 **Role-based Login** — Admin, Teacher, and Student portals with secure redirection
+- 👥 **Student Management** — Full CRUD with course enrollment and semester tracking
 - 👨‍🏫 **Teacher Management** — Manage faculty with department mapping
 - 📅 **Attendance System** — Mark bulk attendance with Present / Absent / Leave status
-- 📊 **Results Management** — Enter marks, auto-calculate grades and totals
+- 📊 **Results Management** — Enter internal + external marks, auto-calculate grades
 - 💰 **Fee Management** — Track fee payments with Paid / Pending / Partial status
-- 🎨 **Professional UI** — Consistent dark-navy theme with color-coded status rows
-- 📈 **Admin Dashboard** — Live stats for students, teachers, attendance, and fees
+- 🤖 **AI ERP Assistant** — Natural language chatbot with role-based data access
+- 🎨 **Professional UI** — Consistent dark-navy theme with color-coded data rows
+- 📈 **Live Dashboard Stats** — Real-time cards for students, teachers, fees, attendance
 - 🛡️ **Input Validation** — Form-level validation on all modules
 - 🔄 **Live Status Bar** — Real-time feedback on every user action
 
 ---
 
+## 🤖 AI Assistant
+
+The system includes a fully integrated **AI ERP Assistant** available in all three dashboards (Admin, Teacher, Student).
+
+### How It Works
+
+```
+VB.NET App  ──► HTTP POST ──►  Python Flask Server  ──►  Groq API (LLaMA 3.1)
+                                      │
+                               MySQL Database
+                          (fetches live context data)
+```
+
+### Role-Based Intelligence
+
+| Role | What the AI Can Answer |
+|------|------------------------|
+| 🔴 **Admin** | All student/teacher info, full fee summary, low attendance reports, any student lookup by roll no |
+| 🟡 **Teacher** | All students in their department, full attendance data, results, low attendance alerts |
+| 🟢 **Student** | Their own attendance %, fee status, exam results, pending balance |
+
+### Example Queries
+
+```
+Admin:   "How many students have pending fees?"
+         "Show me students with low attendance"
+         "Tell me about roll no 202"
+
+Teacher: "Which students have attendance below 75%?"
+         "Show me attendance of roll no 201"
+         "How is Ankit performing?"
+
+Student: "What is my attendance percentage?"
+         "Do I have any pending fees?"
+         "Show me my results"
+```
+
+### Setup (Required)
+
+```bash
+# Install Python dependencies
+pip install flask groq mysql-connector-python
+
+# Add your Groq API key in chatbot/app.py
+GROQ_API_KEY = "gsk_your_key_here"  # Free key: https://console.groq.com/keys
+
+# Start the chatbot server
+python chatbot/app.py
+# Server runs at: http://localhost:5000
+```
+
+> **Note:** The AI chatbot server must be running before using the AI Assistant button in the application.
+
+---
+
 ## 🧩 Modules
 
-| Module | Description |
-|--------|-------------|
-| 🔐 **Login** | Secure login with role-based redirection (Admin / Teacher / Student) |
-| 🏠 **Admin Dashboard** | Overview stats — total students, teachers, pending fees, attendance % |
-| 👥 **Student Management** | Full CRUD for student records with course and semester details |
-| 👨‍🏫 **Teacher Management** | Add/edit faculty records with department and joining date |
-| 📅 **Attendance** | Bulk attendance marking per subject per day, with report view |
-| 📊 **Results** | Enter internal + external marks, auto grade (A+ to F), view report |
-| 💰 **Fee Management** | Record fees, track paid/pending amounts, view student fee summary |
-| 🎓 **Student Dashboard** | Students can view their own attendance, results, and fee status |
-| 👩‍🏫 **Teacher Dashboard** | Teachers can view their assigned subjects and student data |
+| Module | Role Access | Description |
+|--------|-------------|-------------|
+| 🔐 **Login** | All | Secure login with role-based redirection |
+| 🏠 **Admin Dashboard** | Admin | Live stats — students, teachers, fees, attendance |
+| 👥 **Student Management** | Admin | Full CRUD for student records |
+| 👨‍🏫 **Teacher Management** | Admin | Add/edit faculty with department mapping |
+| 📅 **Attendance** | Admin, Teacher | Bulk attendance marking per subject per day |
+| 📊 **Results** | Admin, Teacher | Enter marks, auto-grade (A+ to F), view reports |
+| 💰 **Fee Management** | Admin | Record fees, track paid/pending amounts |
+| 🎓 **Student Dashboard** | Student | View own attendance, results, fee status |
+| 👩‍🏫 **Teacher Dashboard** | Teacher | View dept students, attendance summary, results |
+| 🤖 **AI Assistant** | All | Natural language chatbot with live DB context |
 
 ---
 
@@ -79,6 +139,9 @@ The system features a modern, professional UI with a consistent dark-navy design
 | Database | MySQL 8.x |
 | DB Connector | MySql.Data (MySql.Data.MySqlClient) |
 | IDE | Visual Studio 2022 |
+| AI Model | Groq LLaMA 3.1 8B Instant |
+| AI Backend | Python 3.x + Flask |
+| HTTP Client | System.Net.Http (VB.NET built-in) |
 
 ---
 
@@ -86,23 +149,21 @@ The system features a modern, professional UI with a consistent dark-navy design
 
 **Database Name:** `college_erp`
 
-Key tables used in the project:
-
 ```
-users           — Login credentials and roles
-courses         — Course/program list
-students        — Student records (linked to courses and users)
-teachers        — Teacher/faculty records (linked to departments)
-subjects        — Subjects per course
-attendance      — Daily attendance records per student per subject
-results         — Marks and grades per student per subject
-fees            — Fee records per student with payment status
-departments     — Department list
+users           — Login credentials and roles (admin / teacher / student)
+departments     — Department list (CS, Commerce, Science, etc.)
+courses         — Course/program list linked to departments
+subjects        — Subjects per course and semester
+students        — Student records (linked to courses, users)
+teachers        — Teacher/faculty records (linked to departments, users)
+attendance      — Daily attendance per student per subject (Present/Absent/Leave)
+results         — Internal + external marks, total, grade per student per subject
+fees            — Fee records per student with Paid/Pending/Partial status
 ```
 
 **Connection string** (update in `DatabaseHelper.vb`):
-```
-Server=localhost;Port=3306;Database=college_erp;Uid=root;Pwd=YOUR_PASSWORD;
+```vb
+"Server=localhost;Port=3306;Database=college_erp;Uid=root;Pwd=YOUR_PASSWORD;"
 ```
 
 ---
@@ -113,34 +174,57 @@ Server=localhost;Port=3306;Database=college_erp;Uid=root;Pwd=YOUR_PASSWORD;
 
 - Windows OS
 - [Visual Studio 2019/2022](https://visualstudio.microsoft.com/) with VB.NET support
-- [MySQL Server 8.x](https://dev.mysql.com/downloads/mysql/)
-- MySQL Connector/NET (NuGet: `MySql.Data`)
+- [MySQL Server 8.x](https://dev.mysql.com/downloads/mysql/) + MySQL Workbench
+- MySQL Connector/NET — NuGet: `MySql.Data`
+- Python 3.8+ (for AI chatbot server)
 
 ### Installation Steps
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/parnika-sa/College.git
-   cd College
-   ```
+**1. Clone the repository**
+```bash
+git clone https://github.com/parnika-sa/College.git
+cd College
+```
 
-2. **Set up the database**
-   - Open MySQL Workbench or phpMyAdmin
-   - Create a new database: `college_erp`
-   - Import the provided SQL file (if available) or create tables based on the schema above
+**2. Set up the database**
+```sql
+-- In MySQL Workbench, run:
+CREATE DATABASE college_erp;
+USE college_erp;
+-- Then run the schema SQL + dummy_data.sql
+```
 
-3. **Configure the connection**
-   - Open `DatabaseHelper.vb`
-   - Update the connection string with your MySQL credentials:
-   ```vb
-   Private Shared connectionString As String =
-       "Server=localhost;Port=3306;Database=college_erp;Uid=root;Pwd=YOUR_PASSWORD;"
-   ```
+**3. Configure the DB connection**
 
-4. **Open in Visual Studio**
-   - Open `College.slnx`
-   - Restore NuGet packages (right-click solution → Restore NuGet Packages)
-   - Build and Run (`F5`)
+Open `College/DatabaseHelper.vb` and update:
+```vb
+Private Shared connectionString As String =
+    "Server=localhost;Port=3306;Database=college_erp;Uid=root;Pwd=YOUR_PASSWORD;"
+```
+
+**4. Set up AI Chatbot**
+```bash
+cd chatbot
+pip install -r requirements.txt
+# Edit app.py — add your Groq API key
+python app.py
+```
+Get your free Groq API key at: https://console.groq.com/keys
+
+**5. Open in Visual Studio**
+```
+- Open College.slnx
+- Right-click Solution → Restore NuGet Packages
+- Press F5 to Build and Run
+```
+
+### Default Login Credentials
+
+| Role | Username | Password |
+|------|----------|----------|
+| Admin | `admin` | `admin123` |
+| Teacher | `jagpreet` | `teacher123` |
+| Student | `ankit201` | `student123` |
 
 ---
 
@@ -149,24 +233,51 @@ Server=localhost;Port=3306;Database=college_erp;Uid=root;Pwd=YOUR_PASSWORD;
 ```
 College/
 │
-├── College.slnx                  # Solution file
+├── College.slnx                        # Solution file
+├── README.md                           # This file
 │
-└── College/
-    ├── DatabaseHelper.vb         # MySQL connection & query helper
+├── sql/
+│   ├── schema.sql                      # CREATE TABLE statements
+│   └── dummy_data.sql                  # Sample data for all tables
+│
+├── chatbot/                            # AI Assistant backend
+│   ├── app.py                          # Flask server (Groq + MySQL)
+│   └── requirements.txt                # Python dependencies
+│
+└── College/                            # Main VB.NET project
     │
-    ├── Form1.vb / .Designer.vb   # Login form
+    ├── College.vbproj                  # Project file
+    ├── DatabaseHelper.vb               # MySQL connection & query helper
     │
-    ├── frmAdminDashboard.vb      # Admin dashboard with stats
-    ├── frmStudentDashboard.vb    # Student portal
-    ├── frmTeacherDashboard.vb    # Teacher portal
+    ├── Form1.vb                        # Login form
+    ├── Form1.Designer.vb
     │
-    ├── frmStudents.vb            # Student management (CRUD)
-    ├── frmTeachers.vb            # Teacher management (CRUD)
-    ├── frmAttendance.vb          # Attendance marking & reports
-    ├── frmResults.vb             # Results entry & grade calculation
-    ├── frmFees.vb                # Fee tracking & payment status
+    ├── frmAdminDashboard.vb            # Admin dashboard (stats + navigation)
+    ├── frmAdminDashboard.Designer.vb
     │
-    └── College.vbproj            # Project file
+    ├── frmStudentDashboard.vb          # Student portal
+    ├── frmStudentDashboard.Designer.vb
+    │
+    ├── frmTeacherDashboard.vb          # Teacher portal
+    ├── frmTeacherDashboard.Designer.vb
+    │
+    ├── frmStudents.vb                  # Student management (CRUD)
+    ├── frmStudents.Designer.vb
+    │
+    ├── frmTeachers.vb                  # Teacher management (CRUD)
+    ├── frmTeachers.Designer.vb
+    │
+    ├── frmAttendance.vb                # Attendance marking & reports
+    ├── frmAttendance.Designer.vb
+    │
+    ├── frmResults.vb                   # Results entry & grade calculation
+    ├── frmResults.Designer.vb
+    │
+    ├── frmFees.vb                      # Fee tracking & payment status
+    ├── frmFees.Designer.vb
+    │
+    ├── frmChatbot.vb                   # AI Assistant chat UI
+    └── frmChatbot.Designer.vb
 ```
 
 ---
@@ -175,11 +286,22 @@ College/
 
 The application uses a consistent design system across all forms:
 
-- **Header color:** `RGB(22, 50, 92)` — Dark Navy
-- **Font:** Segoe UI throughout
-- **Button colors:** Green (Save) · Blue (Update) · Red (Delete) · Gray (Clear)
-- **Status bar:** Live feedback at bottom of every form
-- **Grid rows:** Color-coded by status (Paid = Green · Pending = Red · Partial = Yellow)
+| Element | Color / Style |
+|---------|--------------|
+| Header background | `RGB(31, 73, 125)` — Dark Navy Blue |
+| Sidebar background | `RGB(26, 32, 44)` — Near Black |
+| Active nav button | `RGB(31, 73, 125)` — Navy highlight |
+| Font | Segoe UI throughout |
+| Save button | Green |
+| Update button | Blue |
+| Delete button | Red |
+| AI Assistant button | Dark Green |
+| Logout button | Red |
+| Paid rows | Green background |
+| Pending rows | Red background |
+| Partial rows | Yellow background |
+| Present rows | Green background |
+| Absent rows | Red background |
 
 ---
 
@@ -187,7 +309,7 @@ The application uses a consistent design system across all forms:
 
 **Ankit Maurya** ([@parnika-sa](https://github.com/parnika-sa))
 
-> Developed as a College Project — VB.NET Desktop Application
+> Developed as a College Final Project — VB.NET Desktop Application with AI Integration
 
 ---
 
@@ -198,5 +320,5 @@ This project is for **educational purposes** only.
 ---
 
 <p align="center">
-  Made with ❤️ using VB.NET · Visual Studio · MySQL
+  Made with ❤️ using VB.NET · Visual Studio · MySQL · Python · Groq AI
 </p>
