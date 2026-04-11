@@ -5,205 +5,229 @@ Imports Newtonsoft.Json
 Public Class frmChatbot
 
     ' ══════════════════════════════════════════
-    '  PROPERTIES — Set karo jab form open karo
+    '  PUBLIC PROPERTIES — set before Show()
     ' ══════════════════════════════════════════
-    Public Property UserRole As String = "student"   ' "admin" / "teacher" / "student"
+    Public Property UserRole As String = "student"
     Public Property UserId As Integer = 0
     Public Property UserName As String = "User"
 
-    Private ReadOnly client As New HttpClient()
+    Private ReadOnly _http As New HttpClient()
     Private Const SERVER_URL As String = "http://localhost:5000/chat"
-    Private tmrTyping As New Timer()
-    Private _typingDots As Integer = 0
+    Private _sessionId As String = Guid.NewGuid().ToString("N").Substring(0, 12)
+    Private _tmr As New Timer()
+    Private _dots As Integer = 0
 
     ' ══════════════════════════════════════════
-    '  FORM LOAD
+    '  LOAD
     ' ══════════════════════════════════════════
     Private Sub frmChatbot_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        client.Timeout = TimeSpan.FromSeconds(30)
+        _http.Timeout = TimeSpan.FromSeconds(30)
 
-        ' Typing animation timer
-        tmrTyping.Interval = 500
-        AddHandler tmrTyping.Tick, AddressOf TypingAnimation
+        _tmr.Interval = 400
+        AddHandler _tmr.Tick, AddressOf TickTyping
 
-        ' Welcome message
-        AppendMessage("ERP Assistant",
-            $"Hello {UserName}! 👋 I'm your College ERP Assistant." & vbNewLine &
-            GetRoleWelcome(),
-            Color.FromArgb(31, 73, 125), Color.FromArgb(235, 242, 255))
+        ' Role badge colour
+        Dim roleColor As Color = GetRoleColor()
+        lblRoleBadge.BackColor = roleColor
+        lblRoleBadge.Text = "  " & UserRole.ToUpper() & "  "
 
-        txtMessage.Focus()
+        ShowWelcome()
+        txtInput.Focus()
     End Sub
 
-    Private Function GetRoleWelcome() As String
+    Private Function GetRoleColor() As Color
         Select Case UserRole.ToLower()
-            Case "admin"
-                Return "You can ask me about:" & vbNewLine &
-                       "• Total students & courses" & vbNewLine &
-                       "• Pending fee records" & vbNewLine &
-                       "• Students with low attendance" & vbNewLine &
-                       "• Any college stats"
-            Case "teacher"
-                Return "You can ask me about:" & vbNewLine &
-                       "• Your class attendance" & vbNewLine &
-                       "• Student performance" & vbNewLine &
-                       "• Subject-wise results"
-            Case "student"
-                Return "You can ask me about:" & vbNewLine &
-                       "• Your attendance percentage" & vbNewLine &
-                       "• Your fee status" & vbNewLine &
-                       "• Your exam results" & vbNewLine &
-                       "• Any college related queries"
-            Case Else
-                Return "How can I help you today?"
+            Case "admin"   : Return Color.FromArgb(180, 60, 60)
+            Case "teacher" : Return Color.FromArgb(60, 130, 60)
+            Case Else      : Return Color.FromArgb(30, 100, 160)
         End Select
     End Function
 
-    ' ══════════════════════════════════════════
-    '  SEND MESSAGE
-    ' ══════════════════════════════════════════
-    Private Async Sub btnSend_Click(sender As Object, e As EventArgs) Handles btnSend.Click
-        Await SendMessage()
+    Private Sub ShowWelcome()
+        Dim welcome As String = $"Hello {UserName}! 👋  I'm your College ERP Assistant." & vbCrLf & vbCrLf
+        Select Case UserRole.ToLower()
+            Case "admin"
+                welcome &= "As ADMIN you can ask me to:" & vbCrLf &
+                           "  • Add / Remove students or teachers" & vbCrLf &
+                           "  • Update fee payments" & vbCrLf &
+                           "  • Mark attendance" & vbCrLf &
+                           "  • Enter exam results" & vbCrLf &
+                           "  • View any stats or reports"
+            Case "teacher"
+                welcome &= "As TEACHER you can:" & vbCrLf &
+                           "  • Mark / view attendance" & vbCrLf &
+                           "  • Enter / update results" & vbCrLf &
+                           "  • View your department students"
+            Case Else
+                welcome &= "You can ask me about:" & vbCrLf &
+                           "  • Your attendance percentage" & vbCrLf &
+                           "  • Fee status & pending amount" & vbCrLf &
+                           "  • Your exam results"
+        End Select
+        welcome &= vbCrLf & vbCrLf & "Tip: Press Shift+Enter for new line, Enter to send."
+        AppendBubble("ERP Assistant", welcome, isMine:=False)
     End Sub
 
-    Private Async Sub txtMessage_KeyDown(sender As Object, e As KeyEventArgs) Handles txtMessage.KeyDown
+    ' ══════════════════════════════════════════
+    '  SEND
+    ' ══════════════════════════════════════════
+    Private Async Sub btnSend_Click(s As Object, e As EventArgs) Handles btnSend.Click
+        Await DoSend()
+    End Sub
+
+    Private Async Sub txtInput_KeyDown(s As Object, e As KeyEventArgs) Handles txtInput.KeyDown
         If e.KeyCode = Keys.Enter AndAlso Not e.Shift Then
             e.SuppressKeyPress = True
-            Await SendMessage()
+            Await DoSend()
         End If
+        ' Shift+Enter = new line (RichTextBox handles this naturally)
     End Sub
 
-    Private Async Function SendMessage() As Task
-        Dim msg As String = txtMessage.Text.Trim()
+    Private Async Function DoSend() As Task
+        Dim msg As String = txtInput.Text.Trim()
         If msg = "" Then Return
 
-        ' Show user message
-        AppendMessage("You", msg, Color.FromArgb(50, 50, 50), Color.FromArgb(220, 230, 245))
-        txtMessage.Clear()
-
-        ' Disable send + show typing
+        AppendBubble(UserName, msg, isMine:=True)
+        txtInput.Clear()
         btnSend.Enabled = False
         StartTyping()
 
         Try
-            ' Build JSON payload
-            Dim payload = New With {
-                .message = msg,
-                .role = UserRole.ToLower(),
-                .user_id = UserId
+            Dim payload As New With {
+                .message   = msg,
+                .role      = UserRole.ToLower(),
+                .user_id   = UserId,
+                .session_id = _sessionId
             }
-            Dim json As String = JsonConvert.SerializeObject(payload)
+            Dim json    As String = JsonConvert.SerializeObject(payload)
             Dim content As New StringContent(json, Encoding.UTF8, "application/json")
-
-            ' Call Python server
-            Dim response = Await client.PostAsync(SERVER_URL, content)
-            Dim responseJson As String = Await response.Content.ReadAsStringAsync()
-
-            Dim result = JsonConvert.DeserializeObject(Of Dictionary(Of String, String))(responseJson)
-            Dim reply As String = result("reply")
+            Dim resp    = Await _http.PostAsync(SERVER_URL, content)
+            Dim raw     As String = Await resp.Content.ReadAsStringAsync()
+            Dim result  = JsonConvert.DeserializeObject(Of Dictionary(Of String, String))(raw)
+            Dim reply   As String = result("reply")
 
             StopTyping()
-            AppendMessage("ERP Assistant", reply, Color.FromArgb(31, 73, 125), Color.FromArgb(235, 242, 255))
+            AppendBubble("ERP Assistant", reply, isMine:=False)
 
         Catch ex As HttpRequestException
             StopTyping()
-            AppendMessage("System",
-                "⚠️ Cannot connect to chatbot server." & vbNewLine &
-                "Please run: python app.py",
-                Color.DarkRed, Color.FromArgb(255, 240, 240))
-
+            AppendBubble("System",
+                "⚠️ Cannot connect to server." & vbCrLf & "Run: python app.py",
+                isMine:=False, isError:=True)
         Catch ex As Exception
             StopTyping()
-            AppendMessage("System", "Error: " & ex.Message, Color.DarkRed, Color.FromArgb(255, 240, 240))
+            AppendBubble("System", "Error: " & ex.Message, isMine:=False, isError:=True)
         Finally
             btnSend.Enabled = True
-            txtMessage.Focus()
+            txtInput.Focus()
         End Try
     End Function
 
     ' ══════════════════════════════════════════
-    '  CHAT BUBBLE RENDERER
+    '  BUBBLE RENDERER
     ' ══════════════════════════════════════════
-    Private Sub AppendMessage(sender As String, message As String, nameColor As Color, bgColor As Color)
-        If lstChat.InvokeRequired Then
-            lstChat.Invoke(Sub() AppendMessage(sender, message, nameColor, bgColor))
+    Private Sub AppendBubble(sender As String, message As String,
+                             isMine As Boolean,
+                             Optional isError As Boolean = False)
+        If rtbChat.InvokeRequired Then
+            rtbChat.Invoke(Sub() AppendBubble(sender, message, isMine, isError))
             Return
         End If
 
-        ' Separator line before each message (except first)
-        If lstChat.TextLength > 0 Then
-            lstChat.AppendText(vbNewLine)
+        If rtbChat.TextLength > 0 Then rtbChat.AppendText(vbCrLf)
+
+        ' ── Name ──────────────────────────────────────────
+        Dim nameColor As Color
+        If isError Then
+            nameColor = Color.FromArgb(200, 50, 50)
+        ElseIf isMine Then
+            nameColor = Color.FromArgb(30, 80, 140)
+        Else
+            nameColor = GetRoleColor()
         End If
 
-        ' Sender name
-        Dim startLen As Integer = lstChat.TextLength
-        lstChat.AppendText($"  {sender}  " & vbNewLine)
-        lstChat.Select(startLen, $"  {sender}  ".Length)
-        lstChat.SelectionColor = nameColor
-        lstChat.SelectionFont = New Font("Segoe UI", 9, FontStyle.Bold)
-        lstChat.SelectionBackColor = bgColor
+        Dim nameStart As Integer = rtbChat.TextLength
+        rtbChat.AppendText("  " & sender & vbCrLf)
+        rtbChat.Select(nameStart, 2 + sender.Length)
+        rtbChat.SelectionFont  = New Font("Segoe UI", 9, FontStyle.Bold)
+        rtbChat.SelectionColor = nameColor
+        If isMine Then
+            rtbChat.SelectionBackColor = Color.FromArgb(220, 232, 250)
+        ElseIf isError Then
+            rtbChat.SelectionBackColor = Color.FromArgb(255, 235, 235)
+        Else
+            rtbChat.SelectionBackColor = Color.FromArgb(232, 241, 255)
+        End If
 
-        ' Message body
-        Dim msgStart As Integer = lstChat.TextLength
-        lstChat.AppendText($"  {message}" & vbNewLine)
-        lstChat.Select(msgStart, $"  {message}".Length)
-        lstChat.SelectionColor = Color.FromArgb(40, 40, 40)
-        lstChat.SelectionFont = New Font("Segoe UI", 10)
-        lstChat.SelectionBackColor = bgColor
+        ' ── Message ───────────────────────────────────────
+        Dim msgBg As Color = If(isMine, Color.FromArgb(220, 232, 250),
+                             If(isError, Color.FromArgb(255, 235, 235),
+                                Color.FromArgb(232, 241, 255)))
 
-        ' Timestamp
-        Dim timeStart As Integer = lstChat.TextLength
-        lstChat.AppendText($"  {DateTime.Now:hh:mm tt}" & vbNewLine)
-        lstChat.Select(timeStart, $"  {DateTime.Now:hh:mm tt}".Length)
-        lstChat.SelectionColor = Color.LightGray
-        lstChat.SelectionFont = New Font("Segoe UI", 7)
-        lstChat.SelectionBackColor = bgColor
+        Dim msgStart As Integer = rtbChat.TextLength
+        rtbChat.AppendText("  " & message & vbCrLf)
+        Dim msgLen As Integer = 2 + message.Length
+        rtbChat.Select(msgStart, msgLen)
+        rtbChat.SelectionFont      = New Font("Consolas", 9.5)
+        rtbChat.SelectionColor     = Color.FromArgb(25, 25, 25)
+        rtbChat.SelectionBackColor = msgBg
 
-        ' Scroll to bottom
-        lstChat.SelectionStart = lstChat.TextLength
-        lstChat.ScrollToCaret()
+        ' ── Time ──────────────────────────────────────────
+        Dim timeStart As Integer = rtbChat.TextLength
+        rtbChat.AppendText("  " & DateTime.Now.ToString("hh:mm tt") & vbCrLf)
+        rtbChat.Select(timeStart, 2 + 8)
+        rtbChat.SelectionFont      = New Font("Segoe UI", 7, FontStyle.Italic)
+        rtbChat.SelectionColor     = Color.FromArgb(160, 160, 160)
+        rtbChat.SelectionBackColor = msgBg
+
+        rtbChat.SelectionStart = rtbChat.TextLength
+        rtbChat.ScrollToCaret()
     End Sub
 
     ' ══════════════════════════════════════════
     '  TYPING ANIMATION
     ' ══════════════════════════════════════════
     Private Sub StartTyping()
-        _typingDots = 0
-        lblTyping.Text = "  ERP Assistant is typing."
-        tmrTyping.Start()
+        _dots = 0
+        lblTyping.Text = "  ERP Assistant is thinking."
+        _tmr.Start()
     End Sub
-
     Private Sub StopTyping()
-        tmrTyping.Stop()
+        _tmr.Stop()
         lblTyping.Text = ""
     End Sub
-
-    Private Sub TypingAnimation(sender As Object, e As EventArgs)
-        _typingDots = (_typingDots + 1) Mod 4
-        lblTyping.Text = "  ERP Assistant is typing" & New String("."c, _typingDots)
+    Private Sub TickTyping(s As Object, e As EventArgs)
+        _dots = (_dots + 1) Mod 4
+        lblTyping.Text = "  ERP Assistant is thinking" & New String("."c, _dots)
     End Sub
 
     ' ══════════════════════════════════════════
-    '  CLEAR CHAT
+    '  CLEAR
     ' ══════════════════════════════════════════
-    Private Sub btnClear_Click(sender As Object, e As EventArgs) Handles btnClear.Click
-        Dim confirm = MessageBox.Show("Clear chat history?", "Confirm",
-                                     MessageBoxButtons.YesNo, MessageBoxIcon.Question)
-        If confirm = DialogResult.Yes Then
-            lstChat.Clear()
-            AppendMessage("ERP Assistant", "Chat cleared. How can I help you?",
-                         Color.FromArgb(31, 73, 125), Color.FromArgb(235, 242, 255))
+    Private Sub btnClear_Click(s As Object, e As EventArgs) Handles btnClear.Click
+        If MessageBox.Show("Clear chat?", "Confirm",
+                           MessageBoxButtons.YesNo,
+                           MessageBoxIcon.Question) = DialogResult.Yes Then
+            rtbChat.Clear()
+            _sessionId = Guid.NewGuid().ToString("N").Substring(0, 12)
+            ShowWelcome()
         End If
     End Sub
 
     ' ══════════════════════════════════════════
-    '  HOVER EFFECTS
+    '  BUTTON HOVER
     ' ══════════════════════════════════════════
-    Private Sub btnSend_MouseEnter(sender As Object, e As EventArgs) Handles btnSend.MouseEnter
-        btnSend.BackColor = Color.FromArgb(20, 55, 100)
+    Private Sub btnSend_MouseEnter(s As Object, e As EventArgs) Handles btnSend.MouseEnter
+        btnSend.BackColor = Color.FromArgb(15, 55, 110)
     End Sub
-    Private Sub btnSend_MouseLeave(sender As Object, e As EventArgs) Handles btnSend.MouseLeave
+    Private Sub btnSend_MouseLeave(s As Object, e As EventArgs) Handles btnSend.MouseLeave
         btnSend.BackColor = Color.FromArgb(31, 73, 125)
+    End Sub
+    Private Sub btnClear_MouseEnter(s As Object, e As EventArgs) Handles btnClear.MouseEnter
+        btnClear.BackColor = Color.FromArgb(190, 190, 190)
+    End Sub
+    Private Sub btnClear_MouseLeave(s As Object, e As EventArgs) Handles btnClear.MouseLeave
+        btnClear.BackColor = Color.FromArgb(215, 215, 215)
     End Sub
 
 End Class
