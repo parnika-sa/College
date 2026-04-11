@@ -1,4 +1,4 @@
-﻿Imports System.Net.Http
+Imports System.Net.Http
 Imports System.Text
 Imports Newtonsoft.Json
 
@@ -8,38 +8,57 @@ Public Class frmChatbot
     '  PUBLIC PROPERTIES — set before Show()
     ' ══════════════════════════════════════════
     Public Property UserRole As String = "student"
-    Public Property UserId As Integer = 0
+    Public Property UserId   As Integer = 0
     Public Property UserName As String = "User"
 
-    Private ReadOnly _http As New HttpClient()
+    Private ReadOnly _http  As New HttpClient()
     Private Const SERVER_URL As String = "http://localhost:5000/chat"
-    Private _sessionId As String = Guid.NewGuid().ToString("N").Substring(0, 12)
-    Private _tmr As New Timer()
+    Private Const CLEAR_URL  As String = "http://localhost:5000/clear_history"
+
+    Private _tmr  As New Timer()
     Private _dots As Integer = 0
+
+    ' ── Role colours (indigo palette) ──────────────────────
+    Private ReadOnly COL_USER  As Color = Color.FromArgb(99, 102, 241)   ' Indigo
+    Private ReadOnly COL_BOT   As Color = Color.FromArgb(16, 185, 129)   ' Emerald
+    Private ReadOnly COL_ERR   As Color = Color.FromArgb(239, 68, 68)    ' Red
+    Private ReadOnly COL_ADMIN As Color = Color.FromArgb(245, 158, 11)   ' Amber
+    Private ReadOnly COL_TEACH As Color = Color.FromArgb(59, 130, 246)   ' Blue
 
     ' ══════════════════════════════════════════
     '  LOAD
     ' ══════════════════════════════════════════
     Private Sub frmChatbot_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        _http.Timeout = TimeSpan.FromSeconds(30)
+        _http.Timeout = TimeSpan.FromSeconds(45)
 
-        _tmr.Interval = 400
+        _tmr.Interval = 450
         AddHandler _tmr.Tick, AddressOf TickTyping
 
-        ' Role badge colour
-        Dim roleColor As Color = GetRoleColor()
-        lblRoleBadge.BackColor = roleColor
-        lblRoleBadge.Text = "  " & UserRole.ToUpper() & "  "
+        ' Role badge
+        lblRoleBadge.BackColor = GetRoleColor()
+        lblRoleBadge.Text      = "  " & UserRole.ToUpper() & "  "
 
         ShowWelcome()
+
+        ' Initialise placeholder
+        txtInput.ForeColor = Color.FromArgb(75, 85, 99)
+        txtInput.Text      = PLACEHOLDER
+        _placeholderActive = True
+
+        ' Ensure focus lands on input box after form paints
+        Me.BeginInvoke(Sub() txtInput.Focus())
+    End Sub
+
+    ' Clicking chat area redirects focus to input box
+    Private Sub rtbChat_Click(s As Object, e As EventArgs) Handles rtbChat.Click
         txtInput.Focus()
     End Sub
 
     Private Function GetRoleColor() As Color
         Select Case UserRole.ToLower()
-            Case "admin"   : Return Color.FromArgb(180, 60, 60)
-            Case "teacher" : Return Color.FromArgb(60, 130, 60)
-            Case Else      : Return Color.FromArgb(30, 100, 160)
+            Case "admin"   : Return COL_ADMIN
+            Case "teacher" : Return COL_TEACH
+            Case Else      : Return COL_USER
         End Select
     End Function
 
@@ -47,24 +66,23 @@ Public Class frmChatbot
         Dim welcome As String = $"Hello {UserName}! 👋  I'm your College ERP Assistant." & vbCrLf & vbCrLf
         Select Case UserRole.ToLower()
             Case "admin"
-                welcome &= "As ADMIN you can ask me to:" & vbCrLf &
-                           "  • Add / Remove students or teachers" & vbCrLf &
-                           "  • Update fee payments" & vbCrLf &
-                           "  • Mark attendance" & vbCrLf &
-                           "  • Enter exam results" & vbCrLf &
-                           "  • View any stats or reports"
+                welcome &= "As ADMIN you can ask me about:" & vbCrLf &
+                           "  • Student & teacher records" & vbCrLf &
+                           "  • Fee payments & pending amounts" & vbCrLf &
+                           "  • Attendance reports" & vbCrLf &
+                           "  • Exam results & grades"
             Case "teacher"
-                welcome &= "As TEACHER you can:" & vbCrLf &
-                           "  • Mark / view attendance" & vbCrLf &
-                           "  • Enter / update results" & vbCrLf &
-                           "  • View your department students"
+                welcome &= "As TEACHER you can ask about:" & vbCrLf &
+                           "  • Your department students" & vbCrLf &
+                           "  • Attendance records" & vbCrLf &
+                           "  • Subject-wise results"
             Case Else
                 welcome &= "You can ask me about:" & vbCrLf &
                            "  • Your attendance percentage" & vbCrLf &
                            "  • Fee status & pending amount" & vbCrLf &
-                           "  • Your exam results"
+                           "  • Your exam results & grades"
         End Select
-        welcome &= vbCrLf & vbCrLf & "Tip: Press Shift+Enter for new line, Enter to send."
+        welcome &= vbCrLf & vbCrLf & "Tip: Press Enter to send, Shift+Enter for new line."
         AppendBubble("ERP Assistant", welcome, isMine:=False)
     End Sub
 
@@ -80,12 +98,11 @@ Public Class frmChatbot
             e.SuppressKeyPress = True
             Await DoSend()
         End If
-        ' Shift+Enter = new line (RichTextBox handles this naturally)
     End Sub
 
     Private Async Function DoSend() As Task
         Dim msg As String = txtInput.Text.Trim()
-        If msg = "" Then Return
+        If msg = "" OrElse msg = PLACEHOLDER Then Return
 
         AppendBubble(UserName, msg, isMine:=True)
         txtInput.Clear()
@@ -94,10 +111,9 @@ Public Class frmChatbot
 
         Try
             Dim payload As New With {
-                .message   = msg,
-                .role      = UserRole.ToLower(),
-                .user_id   = UserId,
-                .session_id = _sessionId
+                .message  = msg,
+                .role     = UserRole.ToLower(),
+                .user_id  = UserId
             }
             Dim json    As String = JsonConvert.SerializeObject(payload)
             Dim content As New StringContent(json, Encoding.UTF8, "application/json")
@@ -112,11 +128,11 @@ Public Class frmChatbot
         Catch ex As HttpRequestException
             StopTyping()
             AppendBubble("System",
-                "⚠️ Cannot connect to server." & vbCrLf & "Run: python app.py",
+                "⚠️  Cannot connect to server." & vbCrLf & "Make sure Python server is running:  python app.py",
                 isMine:=False, isError:=True)
         Catch ex As Exception
             StopTyping()
-            AppendBubble("System", "Error: " & ex.Message, isMine:=False, isError:=True)
+            AppendBubble("System", "⚠️  " & ex.Message, isMine:=False, isError:=True)
         Finally
             btnSend.Enabled = True
             txtInput.Focus()
@@ -124,61 +140,75 @@ Public Class frmChatbot
     End Function
 
     ' ══════════════════════════════════════════
-    '  BUBBLE RENDERER
+    '  BUBBLE RENDERER  — dark-mode styled
     ' ══════════════════════════════════════════
     Private Sub AppendBubble(sender As String, message As String,
                              isMine As Boolean,
                              Optional isError As Boolean = False)
+
         If rtbChat.InvokeRequired Then
             rtbChat.Invoke(Sub() AppendBubble(sender, message, isMine, isError))
             Return
         End If
 
-        If rtbChat.TextLength > 0 Then rtbChat.AppendText(vbCrLf)
+        ' Spacing between bubbles
+        If rtbChat.TextLength > 0 Then
+            Dim spStart As Integer = rtbChat.TextLength
+            rtbChat.AppendText(vbCrLf)
+            rtbChat.Select(spStart, vbCrLf.Length)
+            rtbChat.SelectionBackColor = Color.FromArgb(15, 20, 30)
+        End If
 
-        ' ── Name ──────────────────────────────────────────
+        ' ── Choose colours based on sender ────────────────────
         Dim nameColor As Color
+        Dim bubbleBg  As Color
+        Dim indent    As String
+
         If isError Then
-            nameColor = Color.FromArgb(200, 50, 50)
+            nameColor = COL_ERR
+            bubbleBg  = Color.FromArgb(40, 15, 15)
+            indent    = "  "
         ElseIf isMine Then
-            nameColor = Color.FromArgb(30, 80, 140)
-        Else
             nameColor = GetRoleColor()
-        End If
-
-        Dim nameStart As Integer = rtbChat.TextLength
-        rtbChat.AppendText("  " & sender & vbCrLf)
-        rtbChat.Select(nameStart, 2 + sender.Length)
-        rtbChat.SelectionFont  = New Font("Segoe UI", 9, FontStyle.Bold)
-        rtbChat.SelectionColor = nameColor
-        If isMine Then
-            rtbChat.SelectionBackColor = Color.FromArgb(220, 232, 250)
-        ElseIf isError Then
-            rtbChat.SelectionBackColor = Color.FromArgb(255, 235, 235)
+            bubbleBg  = Color.FromArgb(30, 32, 60)   ' Dark indigo tint
+            indent    = "      "                       ' Right-ish indent
         Else
-            rtbChat.SelectionBackColor = Color.FromArgb(232, 241, 255)
+            nameColor = COL_BOT
+            bubbleBg  = Color.FromArgb(18, 40, 35)   ' Dark emerald tint
+            indent    = "  "
         End If
 
-        ' ── Message ───────────────────────────────────────
-        Dim msgBg As Color = If(isMine, Color.FromArgb(220, 232, 250),
-                             If(isError, Color.FromArgb(255, 235, 235),
-                                Color.FromArgb(232, 241, 255)))
+        ' ── Sender name ───────────────────────────────────────
+        Dim nameStart As Integer = rtbChat.TextLength
+        rtbChat.AppendText(indent & sender & vbCrLf)
+        rtbChat.Select(nameStart, indent.Length + sender.Length + vbCrLf.Length)
+        rtbChat.SelectionFont      = New Font("Segoe UI", 8.5, FontStyle.Bold)
+        rtbChat.SelectionColor     = nameColor
+        rtbChat.SelectionBackColor = bubbleBg
 
+        ' ── Message body ──────────────────────────────────────
         Dim msgStart As Integer = rtbChat.TextLength
-        rtbChat.AppendText("  " & message & vbCrLf)
-        Dim msgLen As Integer = 2 + message.Length
+        rtbChat.AppendText(indent & message & vbCrLf)
+        Dim msgLen As Integer = indent.Length + message.Length + vbCrLf.Length
         rtbChat.Select(msgStart, msgLen)
-        rtbChat.SelectionFont      = New Font("Consolas", 9.5)
-        rtbChat.SelectionColor     = Color.FromArgb(25, 25, 25)
-        rtbChat.SelectionBackColor = msgBg
+        rtbChat.SelectionFont      = New Font("Segoe UI", 10.5)
+        rtbChat.SelectionColor     = Color.FromArgb(229, 231, 235)
+        rtbChat.SelectionBackColor = bubbleBg
 
-        ' ── Time ──────────────────────────────────────────
+        ' ── Timestamp ─────────────────────────────────────────
         Dim timeStart As Integer = rtbChat.TextLength
-        rtbChat.AppendText("  " & DateTime.Now.ToString("hh:mm tt") & vbCrLf)
-        rtbChat.Select(timeStart, 2 + 8)
-        rtbChat.SelectionFont      = New Font("Segoe UI", 7, FontStyle.Italic)
-        rtbChat.SelectionColor     = Color.FromArgb(160, 160, 160)
-        rtbChat.SelectionBackColor = msgBg
+        Dim timeStr   As String  = indent & DateTime.Now.ToString("hh:mm tt") & vbCrLf
+        rtbChat.AppendText(timeStr)
+        rtbChat.Select(timeStart, timeStr.Length)
+        rtbChat.SelectionFont      = New Font("Segoe UI", 7.5, FontStyle.Italic)
+        rtbChat.SelectionColor     = Color.FromArgb(75, 85, 99)
+        rtbChat.SelectionBackColor = bubbleBg
+
+        ' ── Bottom spacer ─────────────────────────────────────
+        Dim padStart As Integer = rtbChat.TextLength
+        rtbChat.AppendText("  " & vbCrLf)
+        rtbChat.Select(padStart, 2 + vbCrLf.Length)
+        rtbChat.SelectionBackColor = Color.FromArgb(15, 20, 30)
 
         rtbChat.SelectionStart = rtbChat.TextLength
         rtbChat.ScrollToCaret()
@@ -192,10 +222,12 @@ Public Class frmChatbot
         lblTyping.Text = "  ERP Assistant is thinking."
         _tmr.Start()
     End Sub
+
     Private Sub StopTyping()
         _tmr.Stop()
         lblTyping.Text = ""
     End Sub
+
     Private Sub TickTyping(s As Object, e As EventArgs)
         _dots = (_dots + 1) Mod 4
         lblTyping.Text = "  ERP Assistant is thinking" & New String("."c, _dots)
@@ -204,30 +236,63 @@ Public Class frmChatbot
     ' ══════════════════════════════════════════
     '  CLEAR
     ' ══════════════════════════════════════════
-    Private Sub btnClear_Click(s As Object, e As EventArgs) Handles btnClear.Click
-        If MessageBox.Show("Clear chat?", "Confirm",
+    Private Async Sub btnClear_Click(s As Object, e As EventArgs) Handles btnClear.Click
+        If MessageBox.Show("Clear chat and reset conversation memory?", "Confirm Clear",
                            MessageBoxButtons.YesNo,
                            MessageBoxIcon.Question) = DialogResult.Yes Then
+
+            ' Clear server-side history too
+            Try
+                Dim payload As New With {.role = UserRole.ToLower(), .user_id = UserId}
+                Dim json    As String = JsonConvert.SerializeObject(payload)
+                Dim content As New StringContent(json, Encoding.UTF8, "application/json")
+                Await _http.PostAsync(CLEAR_URL, content)
+            Catch
+                ' Silently ignore if server is not reachable
+            End Try
+
             rtbChat.Clear()
-            _sessionId = Guid.NewGuid().ToString("N").Substring(0, 12)
             ShowWelcome()
         End If
     End Sub
 
     ' ══════════════════════════════════════════
-    '  BUTTON HOVER
+    '  BUTTON HOVER EFFECTS
     ' ══════════════════════════════════════════
     Private Sub btnSend_MouseEnter(s As Object, e As EventArgs) Handles btnSend.MouseEnter
-        btnSend.BackColor = Color.FromArgb(15, 55, 110)
+        btnSend.BackColor = Color.FromArgb(79, 70, 229)
     End Sub
     Private Sub btnSend_MouseLeave(s As Object, e As EventArgs) Handles btnSend.MouseLeave
-        btnSend.BackColor = Color.FromArgb(31, 73, 125)
+        btnSend.BackColor = Color.FromArgb(99, 102, 241)
     End Sub
     Private Sub btnClear_MouseEnter(s As Object, e As EventArgs) Handles btnClear.MouseEnter
-        btnClear.BackColor = Color.FromArgb(190, 190, 190)
+        btnClear.BackColor = Color.FromArgb(75, 85, 99)
+        btnClear.ForeColor = Color.FromArgb(209, 213, 219)
     End Sub
     Private Sub btnClear_MouseLeave(s As Object, e As EventArgs) Handles btnClear.MouseLeave
-        btnClear.BackColor = Color.FromArgb(215, 215, 215)
+        btnClear.BackColor = Color.FromArgb(55, 65, 81)
+        btnClear.ForeColor = Color.FromArgb(156, 163, 175)
+    End Sub
+
+    ' ── Placeholder text for txtInput ──────────────────────────
+    Private _placeholderActive As Boolean = False
+    Private ReadOnly PLACEHOLDER As String = "Type a message..."
+
+    Private Sub txtInput_Enter(s As Object, e As EventArgs) Handles txtInput.Enter
+        If _placeholderActive Then
+            txtInput.Text      = ""
+            txtInput.ForeColor = Color.FromArgb(229, 231, 235)
+            _placeholderActive = False
+        End If
+    End Sub
+
+    Private Sub txtInput_Leave(s As Object, e As EventArgs) Handles txtInput.Leave
+        ' Only show placeholder if focus is NOT going to a button
+        If txtInput.Text.Trim() = "" OrElse txtInput.Text = PLACEHOLDER Then
+            txtInput.ForeColor = Color.FromArgb(75, 85, 99)
+            txtInput.Text      = PLACEHOLDER
+            _placeholderActive = True
+        End If
     End Sub
 
 End Class
